@@ -23,6 +23,7 @@ import { AdminOrdersPage } from './features/admin/orders/AdminOrdersPage';
 import { AdminQuotesPage } from './features/admin/quotes/AdminQuotesPage';
 import { AdminCataloguePage } from './features/admin/catalogue/AdminCataloguePage';
 import { AdminCustomersPage } from './features/admin/customers/AdminCustomersPage';
+import { NotFoundPage } from './shared/components/NotFoundPage';
 
 function AppShell() {
   return (
@@ -53,6 +54,9 @@ function AppShell() {
             <Route path="/admin/quotes" element={<AdminRoute><AdminQuotesPage /></AdminRoute>} />
             <Route path="/admin/catalogue" element={<AdminRoute><AdminCataloguePage /></AdminRoute>} />
             <Route path="/admin/customers" element={<AdminRoute><AdminCustomersPage /></AdminRoute>} />
+
+          {/* Anything else */}
+          <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </CartProvider>
       </AuthProvider>
