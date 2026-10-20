@@ -3,21 +3,17 @@ import { Button, Empty, Select, Space, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/api/supabaseClient';
 import { AdminLayout } from '../layout/AdminLayout';
-import type { Order } from '../../../shared/types';
+import type { Order, OrderStatus } from '../../../shared/types';
+import { StatusChip } from '../../../shared/components/StatusChip';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 import { buildWhatsAppLink } from '../../../shared/config/whatsapp';
 import { orderWhatsAppMessage } from '../../../shared/config/orderStatus';
 
 const { Title } = Typography;
 
-const STATUS_OPTIONS = [
-  { value: 'pending_payment', label: 'Pending Payment' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'in_progress', label: 'In Progress' },
-  { value: 'ready', label: 'Ready' },
-  { value: 'delivered', label: 'Delivered' },
-  { value: 'cancelled', label: 'Cancelled' },
-];
+const STATUS_OPTIONS = (
+  ['pending_payment', 'paid', 'in_progress', 'ready', 'delivered', 'cancelled'] as OrderStatus[]
+).map(value => ({ value, label: <StatusChip kind="order" status={value} /> }));
 
 
 export const AdminOrdersPage = () => {
@@ -84,12 +80,12 @@ export const AdminOrdersPage = () => {
           {
             title: 'Total',
             dataIndex: 'total_amount',
-            render: (v: number) => `$${v?.toFixed(2)}`,
+            render: (v: number) => <span className="mono">${v?.toFixed(2)}</span>,
           },
           {
             title: 'Deposit',
             dataIndex: 'deposit_amount',
-            render: (v: number | null) => v ? `$${v.toFixed(2)}` : '—',
+            render: (v: number | null) => v ? <span className="mono">${v.toFixed(2)}</span> : '—',
           },
           {
             title: 'Payment',
@@ -103,7 +99,8 @@ export const AdminOrdersPage = () => {
               <Select
                 value={status}
                 size="small"
-                style={{ width: 160 }}
+                variant="borderless"
+                style={{ width: 170 }}
                 onChange={v => updateStatus(record.id, v)}
                 options={STATUS_OPTIONS}
               />

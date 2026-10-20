@@ -61,8 +61,8 @@ export const DashboardPage = () => {
       <Row gutter={[24, 24]} style={{ marginBottom: spacing[8] }}>
         {[
           { title: 'Total Orders', value: stats.orders, icon: <ShoppingOutlined />, color: colors.brand.primary },
-          { title: 'Pending Quotes', value: stats.quotes, icon: <FileTextOutlined />, color: '#faad14' },
-          { title: 'Customers', value: stats.customers, icon: <TeamOutlined />, color: '#52c41a' },
+          { title: 'Pending Quotes', value: stats.quotes, icon: <FileTextOutlined />, color: colors.semantic.warning },
+          { title: 'Customers', value: stats.customers, icon: <TeamOutlined />, color: colors.semantic.success },
           { title: 'Total Revenue', value: `$${stats.revenue.toFixed(2)}`, icon: <DollarOutlined />, color: colors.brand.accent },
         ].map(stat => (
           <Col key={stat.title} xs={24} sm={12} lg={6}>
@@ -70,8 +70,8 @@ export const DashboardPage = () => {
               <Statistic
                 title={stat.title}
                 value={stat.value}
-                prefix={<span style={{ color: stat.color }}>{stat.icon}</span>}
-                valueStyle={{ color: stat.color }}
+                prefix={<span style={{ color: stat.color, fontSize: 18 }}>{stat.icon}</span>}
+                valueStyle={{ color: colors.text.primary }}
               />
             </Card>
           </Col>
@@ -85,7 +85,7 @@ export const DashboardPage = () => {
             <XAxis dataKey="month" />
             <YAxis tickFormatter={v => `$${v}`} />
             <Tooltip formatter={(v) => [`$${Number(v).toFixed(2)}`, 'Revenue']} />
-            <Bar dataKey="revenue" fill={colors.brand.primary} radius={[4, 4, 0, 0]} />
+            <Bar dataKey="revenue" fill={colors.brand.primary} radius={[3, 3, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </Card>

@@ -32,27 +32,11 @@ import { supabase } from '../../../lib/api/supabaseClient';
 import type { Order, Quote } from '../../../shared/types';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
+import { StatusChip } from '../../../shared/components/StatusChip';
 import { buildWhatsAppLink, BUSINESS_WHATSAPP_NUMBER } from '../../../shared/config/whatsapp';
 import { ORDER_STATUS_STEPS, orderStatusStepIndex, orderWhatsAppMessage } from '../../../shared/config/orderStatus';
 
 const { Title, Text } = Typography;
-
-const ORDER_STATUS_COLOR: Record<string, string> = {
-  pending_payment: 'warning',
-  paid: 'blue',
-  in_progress: 'processing',
-  ready: 'cyan',
-  delivered: 'success',
-  cancelled: 'error',
-};
-
-const QUOTE_STATUS_COLOR: Record<string, string> = {
-  pending: 'gold',
-  quoted: 'blue',
-  accepted: 'green',
-  rejected: 'red',
-  completed: 'purple',
-};
 
 interface QuoteCardProps {
   quote: Quote;
@@ -94,9 +78,7 @@ const CustomerQuoteCard = ({ quote, onAccept, onDecline }: QuoteCardProps) => {
           </Text>
         </Col>
         <Col>
-          <Tag color={QUOTE_STATUS_COLOR[quote.status] ?? 'default'}>
-            {quote.status.toUpperCase()}
-          </Tag>
+          <StatusChip kind="quote" status={quote.status} />
         </Col>
       </Row>
 
@@ -204,10 +186,8 @@ const CustomerOrderCard = ({ order }: { order: Order }) => {
         </Col>
         <Col>
           <Space>
-            <Tag color={ORDER_STATUS_COLOR[order.status] ?? 'default'}>
-              {order.status.replace('_', ' ').toUpperCase()}
-            </Tag>
-            <Text strong style={{ color: colors.brand.primary }}>${order.total_amount}</Text>
+            <StatusChip kind="order" status={order.status} />
+            <Text strong className="mono" style={{ color: colors.brand.deep }}>${order.total_amount}</Text>
           </Space>
         </Col>
       </Row>

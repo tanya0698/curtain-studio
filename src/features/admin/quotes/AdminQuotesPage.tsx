@@ -6,14 +6,11 @@ import { AdminLayout } from '../layout/AdminLayout';
 import type { Quote, QuoteStatus } from '../../../shared/types';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 import { buildWhatsAppLink } from '../../../shared/config/whatsapp';
+import { StatusChip } from '../../../shared/components/StatusChip';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
 const { TextArea } = Input;
-
-const STATUS_COLOR: Record<string, string> = {
-  pending: 'gold', quoted: 'blue', accepted: 'green', rejected: 'red', completed: 'purple',
-};
 
 const FILTERS: { label: string; value: 'all' | QuoteStatus }[] = [
   { label: 'All', value: 'all' },
@@ -76,7 +73,7 @@ const QuoteCard = ({ quote, saving, onRespond }: QuoteCardProps) => {
                 WhatsApp Customer
               </Button>
             )}
-            <Tag color={STATUS_COLOR[quote.status]}>{quote.status.toUpperCase()}</Tag>
+            <StatusChip kind="quote" status={quote.status} />
           </Space>
         </Space>
 

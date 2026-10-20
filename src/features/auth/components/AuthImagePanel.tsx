@@ -1,6 +1,6 @@
 import { CheckOutlined, ScissorOutlined, StarFilled } from '@ant-design/icons';
 import { Typography } from 'antd';
-import { useColors } from '../../../lib/theme';
+import { useColors, typography } from '../../../lib/theme';
 
 const { Text } = Typography;
 
@@ -17,7 +17,7 @@ export const AuthImagePanel = () => {
       width: '46%',
       minWidth: 340,
       flexShrink: 0,
-      background: `linear-gradient(145deg, ${colors.brand.dark} 0%, ${colors.brand.primary} 100%)`,
+      background: colors.brand.dark,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
@@ -26,26 +26,26 @@ export const AuthImagePanel = () => {
       position: 'relative',
       overflow: 'hidden',
     }}>
-      {/* Decorative background circles */}
-      <div style={{ position: 'absolute', top: -90, right: -90, width: 300, height: 300, borderRadius: '50%', background: 'rgba(255,255,255,0.05)' }} />
-      <div style={{ position: 'absolute', bottom: -70, left: -70, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,0.06)' }} />
-      <div style={{ position: 'absolute', top: '38%', left: -28, width: 90, height: 90, borderRadius: '50%', background: 'rgba(255,255,255,0.04)' }} />
-      <div style={{ position: 'absolute', top: '15%', right: 20, width: 50, height: 50, borderRadius: '50%', background: 'rgba(255,255,255,0.08)' }} />
+      {/* Pleats along the top edge */}
+      <div aria-hidden style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 120, display: 'flex', gap: 3, padding: '0 24px' }}>
+        {[colors.brand.primary, colors.brand.accent, colors.text.secondary, colors.brand.peach, colors.brand.primary, colors.brand.accent, colors.text.secondary, colors.brand.peach].map((c, i) => (
+          <div key={i} style={{ flex: 1, background: c, opacity: 0.22, borderRadius: '0 0 40px 40px', marginBottom: i % 2 ? 0 : 20 }} />
+        ))}
+      </div>
 
       {/* Icon circle */}
       <div style={{
-        width: 100, height: 100, borderRadius: '50%',
-        background: 'rgba(255,255,255,0.15)',
+        width: 88, height: 88, borderRadius: '50%',
+        border: `1px solid ${colors.brand.primary}`,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
         marginBottom: 24,
-        boxShadow: '0 12px 40px rgba(0,0,0,0.25)',
         position: 'relative', zIndex: 1,
       }}>
-        <ScissorOutlined style={{ fontSize: 44, color: '#fff' }} />
+        <ScissorOutlined style={{ fontSize: 38, color: colors.brand.peach }} />
       </div>
 
       {/* Brand name */}
-      <div style={{ color: '#fff', fontSize: 26, fontWeight: 800, letterSpacing: 0.5, textAlign: 'center', marginBottom: 6, position: 'relative', zIndex: 1 }}>
+      <div style={{ color: '#fff', fontFamily: typography.displayFamily, fontSize: 30, textAlign: 'center', marginBottom: 6, position: 'relative', zIndex: 1 }}>
         J&amp;M Curtain Studio
       </div>
       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textAlign: 'center', marginBottom: 36, position: 'relative', zIndex: 1 }}>
@@ -58,7 +58,7 @@ export const AuthImagePanel = () => {
           <div key={f} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 14 }}>
             <div style={{
               width: 22, height: 22, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.2)',
+              background: colors.brand.primary,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0, marginTop: 1,
             }}>
@@ -73,12 +73,12 @@ export const AuthImagePanel = () => {
       <div style={{
         marginTop: 28,
         display: 'flex', alignItems: 'center', gap: 10,
-        background: 'rgba(255,255,255,0.12)',
-        borderRadius: 14, padding: '10px 18px',
+        border: '1px solid rgba(255,255,255,0.14)',
+        borderRadius: 4, padding: '10px 18px',
         position: 'relative', zIndex: 1,
       }}>
         <div style={{ display: 'flex', gap: 2 }}>
-          {[...Array(5)].map((_, i) => <StarFilled key={i} style={{ color: '#FDCB6E', fontSize: 13 }} />)}
+          {[...Array(5)].map((_, i) => <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: 13 }} />)}
         </div>
         <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 500 }}>
           500+ happy customers

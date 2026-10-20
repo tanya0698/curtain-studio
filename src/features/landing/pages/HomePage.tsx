@@ -17,7 +17,7 @@ import { useNavigate } from 'react-router-dom';
 import { ProductCard } from '../../catalogue/components/ProductCard';
 import { catalogueService } from '../../catalogue/services/catalogueService';
 import type { Product } from '../../../shared/types';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, typography } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
 
 const { Title, Text, Paragraph } = Typography;
@@ -68,11 +68,12 @@ const FloatBadge = ({
   return (
     <div className="panel-badge" style={{
       position: 'absolute',
-      background: dark ? colors.brand.primary : '#fff',
-      borderRadius: 14,
+      background: dark ? colors.brand.dark : colors.background.surface,
+      border: `1px solid ${colors.border.strong}`,
+      borderRadius: radius.md,
       padding: '10px 16px',
       boxShadow: shadows.lg,
-      color: dark ? '#fff' : colors.brand.primary,
+      color: dark ? colors.text.onDark : colors.text.primary,
       fontSize: 13,
       fontWeight: 600,
       alignItems: 'center',
@@ -86,71 +87,33 @@ const FloatBadge = ({
 
 // ── Image panels ────────────────────────────────────────────
 
-const HeroPanel = () => {
-  const colors = useColors();
-  return (
-    <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', paddingBlock: spacing[8] }}>
-      {/* Soft glow ring */}
-      <div style={{
-        width: '90%', maxWidth: 440, aspectRatio: '1',
-        borderRadius: '50%',
-        background: `${colors.brand.primary}14`,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        position: 'relative',
-      }}>
-        {/* Inner circle */}
-        <div style={{
-          width: '82%', aspectRatio: '1', borderRadius: '50%',
-          background: `linear-gradient(145deg, ${colors.brand.dark} 0%, ${colors.brand.primary} 65%, ${colors.brand.accent}90 100%)`,
-          position: 'relative', overflow: 'hidden',
-          boxShadow: `0 28px 64px ${colors.brand.primary}50`,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 6,
-        }}>
-          {/* Curtain strips */}
-          <div style={{ position: 'absolute', inset: 0, display: 'flex' }}>
-            {[...Array(9)].map((_, i) => (
-              <div key={i} style={{
-                flex: 1,
-                background: i % 2 === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.07)',
-              }} />
-            ))}
-          </div>
-          {/* Center art */}
-          <ScissorOutlined style={{ fontSize: 52, color: 'rgba(255,255,255,0.75)', position: 'relative', zIndex: 1 }} />
-          <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 26, fontWeight: 800, letterSpacing: 3, position: 'relative', zIndex: 1 }}>
-            J&amp;M
-          </div>
-          <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: 11, letterSpacing: 4, textTransform: 'uppercase', position: 'relative', zIndex: 1 }}>
-            Curtain Studio
-          </div>
-        </div>
-      </div>
+// Rhythm of pleated curtain folds in the studio's palette (styles in index.css)
+const HeroPleats = () => (
+  <div className="pleats" role="img" aria-label="Rhythm of pleated curtain folds in the studio's palette">
+    {[...Array(11)].map((_, i) => <div key={i} className="pleat" />)}
+  </div>
+);
 
-      {/* Floating badges */}
-      <FloatBadge style={{ bottom: '12%', right: 0 }}>
-        <span style={{ fontSize: 18 }}>⭐</span>
-        <div>
-          <div style={{ lineHeight: 1.2 }}>500+ Customers</div>
-          <div style={{ fontSize: 11, opacity: 0.6, fontWeight: 400 }}>Across Harare</div>
-        </div>
-      </FloatBadge>
-      <FloatBadge dark style={{ top: '12%', left: 0 }}>
-        <ScissorOutlined />
-        <div>
-          <div style={{ lineHeight: 1.2 }}>Custom Made</div>
-          <div style={{ fontSize: 11, opacity: 0.7, fontWeight: 400 }}>Since 2009</div>
-        </div>
-      </FloatBadge>
-    </div>
-  );
-};
+// Section divider — a row of pressed pleat lines
+const FoldRule = () => (
+  <div className="fold-rule" aria-hidden>
+    {[...Array(16)].map((_, i) => <span key={i} />)}
+  </div>
+);
 
-const SERVICE_TILES = [
-  { icon: <ScissorOutlined />, label: 'Custom', color: '#6C5CE7', bg: '#6C5CE720' },
-  { icon: <ShoppingOutlined />, label: 'Ready-Made', color: '#00CEC9', bg: '#00CEC920' },
-  { icon: <BgColorsOutlined />, label: 'Fabrics', color: '#FDCB6E', bg: '#FDCB6E20' },
-  { icon: <ToolOutlined />, label: 'Alterations', color: '#A78BFA', bg: '#A78BFA20' },
+type ServiceTone = 'dark' | 'primary' | 'accent' | 'secondary';
+const toneColor = (colors: ReturnType<typeof useColors>, tone: ServiceTone) => ({
+  dark: colors.text.primary,
+  primary: colors.brand.primary,
+  accent: colors.brand.accent,
+  secondary: colors.text.secondary,
+}[tone]);
+
+const SERVICE_TILES: { icon: React.ReactNode; label: string; tone: ServiceTone }[] = [
+  { icon: <ScissorOutlined />, label: 'Custom', tone: 'primary' },
+  { icon: <ShoppingOutlined />, label: 'Ready-Made', tone: 'dark' },
+  { icon: <BgColorsOutlined />, label: 'Fabrics', tone: 'accent' },
+  { icon: <ToolOutlined />, label: 'Alterations', tone: 'secondary' },
 ];
 
 const ServicesPanel = () => {
@@ -158,30 +121,30 @@ const ServicesPanel = () => {
   return (
     <div style={{
       position: 'relative',
-      borderRadius: radius.xxl,
-      background: `linear-gradient(135deg, ${colors.brand.light} 0%, #ffffff 100%)`,
-      border: `1px solid ${colors.border.subtle}`,
+      borderRadius: radius.lg,
+      background: colors.background.surface,
+      border: `1px solid ${colors.border.strong}`,
       padding: spacing[8],
       display: 'grid',
       gridTemplateColumns: '1fr 1fr',
-      gap: spacing[4],
+      gap: 0,
       boxShadow: shadows.md,
     }}>
-      {SERVICE_TILES.map((t) => (
+      {SERVICE_TILES.map((t, i) => (
         <div key={t.label} style={{
-          background: t.bg,
-          borderRadius: radius.lg,
-          padding: `${spacing[5]}px ${spacing[4]}px`,
+          borderRight: i % 2 === 0 ? `1px solid ${colors.border.subtle}` : 'none',
+          borderBottom: i < 2 ? `1px solid ${colors.border.subtle}` : 'none',
+          padding: `${spacing[6]}px ${spacing[4]}px`,
           textAlign: 'center',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
         }}>
-          <div style={{ fontSize: 28, color: t.color }}>{t.icon}</div>
-          <Text style={{ fontSize: 12, fontWeight: 600, color: t.color }}>{t.label}</Text>
+          <div style={{ fontSize: 28, color: toneColor(colors, t.tone) }}>{t.icon}</div>
+          <Text style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', color: colors.text.secondary }}>{t.label}</Text>
         </div>
       ))}
 
       <FloatBadge style={{ bottom: -16, left: '50%', transform: 'translateX(-50%)', whiteSpace: 'nowrap' }}>
-        <StarFilled style={{ color: '#FDCB6E' }} />
+        <StarFilled style={{ color: colors.brand.primary }} />
         <span>15+ Years of Excellence</span>
       </FloatBadge>
     </div>
@@ -195,8 +158,8 @@ const ProcessPanel = () => {
   return (
     <div style={{
       position: 'relative',
-      borderRadius: radius.xxl,
-      background: `linear-gradient(145deg, ${colors.brand.dark} 0%, ${colors.brand.primary} 100%)`,
+      borderRadius: radius.lg,
+      background: colors.brand.dark,
       padding: `${spacing[8]}px ${spacing[6]}px`,
       boxShadow: shadows.xl,
       display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: spacing[1],
@@ -205,11 +168,11 @@ const ProcessPanel = () => {
       {PROCESS_STEPS.map((step, i) => (
         <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: spacing[4] }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
-            <div style={{
+            <div className="mono" style={{
               width: 40, height: 40, borderRadius: '50%',
-              background: 'rgba(255,255,255,0.2)',
+              border: `1px solid ${colors.brand.primary}`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 14, fontWeight: 800,
+              color: colors.brand.peach, fontSize: 13,
             }}>
               0{i + 1}
             </div>
@@ -218,7 +181,7 @@ const ProcessPanel = () => {
             )}
           </div>
           <div style={{ paddingTop: 10 }}>
-            <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 14, fontWeight: 600 }}>{step}</Text>
+            <Text style={{ color: colors.text.onDark, fontSize: 14, fontWeight: 600 }}>{step}</Text>
           </div>
         </div>
       ))}
@@ -236,8 +199,8 @@ const QualityPanel = () => {
   return (
     <div style={{
       position: 'relative',
-      borderRadius: radius.xxl,
-      background: `linear-gradient(135deg, ${colors.brand.primary} 0%, ${colors.brand.accent} 100%)`,
+      borderRadius: radius.lg,
+      background: colors.brand.deep,
       padding: spacing[8],
       boxShadow: shadows.xl,
       display: 'flex', flexDirection: 'column',
@@ -254,12 +217,12 @@ const QualityPanel = () => {
       }}>
         <CheckCircleOutlined style={{ color: '#fff' }} />
       </div>
-      <div style={{ color: '#fff', fontSize: 20, fontWeight: 800, lineHeight: 1.2 }}>
+      <div style={{ color: '#fff', fontFamily: typography.displayFamily, fontSize: 24, lineHeight: 1.15 }}>
         J&amp;M Quality<br />Guarantee
       </div>
       <div style={{ display: 'flex', gap: 4 }}>
         {[...Array(5)].map((_, i) => (
-          <StarFilled key={i} style={{ color: '#FDCB6E', fontSize: 16 }} />
+          <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: 16 }} />
         ))}
       </div>
       <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
@@ -282,11 +245,11 @@ const STATS = [
   { value: 100, suffix: '%', label: 'Satisfaction Rate' },
 ];
 
-const SERVICES = [
-  { icon: <ScissorOutlined />, name: 'Custom Curtains', desc: 'Designed and crafted from scratch to your exact measurements and specifications.', accent: '#6C5CE7' },
-  { icon: <ShoppingOutlined />, name: 'Ready-Made', desc: 'Premium quality curtains available off the shelf, ready to hang the same day.', accent: '#00CEC9' },
-  { icon: <BgColorsOutlined />, name: 'Premium Fabrics', desc: 'Source exquisite fabric by the metre from our curated collection of fine textiles.', accent: '#FDCB6E' },
-  { icon: <ToolOutlined />, name: 'Alterations', desc: 'Expert repairs, re-lining, shortening, and fitting adjustments for any curtain.', accent: '#A78BFA' },
+const SERVICES: { icon: React.ReactNode; name: string; desc: string; tone: ServiceTone }[] = [
+  { icon: <ScissorOutlined />, name: 'Custom Curtains', desc: 'Designed and crafted from scratch to your exact measurements and specifications.', tone: 'primary' },
+  { icon: <ShoppingOutlined />, name: 'Ready-Made', desc: 'Premium quality curtains available off the shelf, ready to hang the same day.', tone: 'dark' },
+  { icon: <BgColorsOutlined />, name: 'Premium Fabrics', desc: 'Source exquisite fabric by the metre from our curated collection of fine textiles.', tone: 'accent' },
+  { icon: <ToolOutlined />, name: 'Alterations', desc: 'Expert repairs, re-lining, shortening, and fitting adjustments for any curtain.', tone: 'secondary' },
 ];
 
 const HOW_IT_WORKS = [
@@ -333,42 +296,35 @@ export const HomePage = () => {
   const vis = (v: boolean) => v ? 'is-visible' : '';
   const td = (ms: number) => ({ transitionDelay: `${ms}ms` });
 
-  const sectionLabel: React.CSSProperties = {
-    color: colors.brand.primary, fontWeight: 600,
-    textTransform: 'uppercase', letterSpacing: 1.5, fontSize: 12,
-  };
-
   const vPad = isMobile ? 48 : spacing[16];
   const sectionPad = { padding: `${vPad}px ${spacing[6]}px` } as const;
+
+  // Outlined ink button — the artifact's secondary CTA
+  const ghostInk: React.CSSProperties = {
+    background: 'transparent', borderColor: colors.text.primary, color: colors.text.primary,
+  };
 
   return (
     <CustomerLayout>
 
       {/* ── Hero ─────────────────────────────────────────── */}
-      <section style={{ ...sectionPad, background: colors.background.page, paddingTop: spacing[10] }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <Row gutter={[64, 48]} align="middle">
+      <section className="hero-glow" style={{ ...sectionPad, background: colors.background.page, paddingTop: isMobile ? 48 : 88 }}>
+        <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative', zIndex: 1 }}>
+          <Row gutter={[56, 48]} align="middle">
             {/* Content */}
-            <Col xs={{ span: 24, order: 1 }} md={{ span: 12, order: 1 }}>
+            <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 1 }}>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(0)}>
-                <div style={{
-                  display: 'inline-block', background: colors.brand.light,
-                  borderRadius: radius.pill, padding: `5px ${spacing[4]}px`,
-                  marginBottom: spacing[4], fontSize: 12, fontWeight: 600,
-                  letterSpacing: 1.5, textTransform: 'uppercase', color: colors.brand.primary,
-                }}>
-                  Harare's Premier Curtain Studio
-                </div>
+                <span className="eyebrow">Harare — made to measure</span>
               </div>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(120)}>
-                <Title className="hero-title" style={{ fontSize: 48, fontWeight: 800, lineHeight: 1.15, marginBottom: spacing[4] }}>
-                  Transform Your Space With Perfect Curtains
+                <Title className="hero-title" style={{ fontSize: 'clamp(2.4rem, 4.6vw, 4rem)', lineHeight: 1.04, margin: `${spacing[3]}px 0 ${spacing[5]}px` }}>
+                  Every pleat,<br />cut and hung<br />by hand.
                 </Title>
               </div>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(240)}>
-                <Paragraph style={{ fontSize: 17, lineHeight: 1.75, color: colors.text.secondary, marginBottom: spacing[8] }}>
-                  Custom-made designs, ready-made options, premium fabrics and expert alterations.
-                  Your dream window treatment is just one step away.
+                <Paragraph style={{ fontSize: 17, lineHeight: 1.65, color: colors.text.secondary, maxWidth: '46ch', marginBottom: spacing[8] }}>
+                  Custom curtains, ready-made panels, fabric by the metre, and alterations — from a
+                  workroom that still measures twice before it cuts.
                 </Paragraph>
               </div>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(360)}>
@@ -376,31 +332,33 @@ export const HomePage = () => {
                   <Button
                     size="large"
                     type="primary"
-                    style={{ height: 52, paddingInline: spacing[8], fontWeight: 600 }}
+                    style={{ height: 48, paddingInline: spacing[6] }}
                     onClick={() => navigate('/catalogue')}
                   >
-                    Browse Catalogue <ArrowRightOutlined />
+                    View the catalogue <ArrowRightOutlined />
                   </Button>
                   <Button
                     size="large"
-                    style={{ height: 52, paddingInline: spacing[8] }}
+                    style={{ height: 48, paddingInline: spacing[6], ...ghostInk }}
                     onClick={() => navigate('/quotes/new')}
                   >
-                    Get a Free Quote
+                    Request a quote
                   </Button>
                 </Space>
               </div>
             </Col>
 
-            {/* Hero panel */}
-            <Col xs={{ span: 24, order: 2 }} md={{ span: 12, order: 2 }}>
+            {/* Hero graphic */}
+            <Col xs={{ span: 24, order: 2 }} md={{ span: 11, order: 2 }}>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(200)}>
-                <HeroPanel />
+                <HeroPleats />
               </div>
             </Col>
           </Row>
         </div>
       </section>
+
+      <FoldRule />
 
       {/* ── Stats Bar ────────────────────────────────────── */}
       <section style={{ background: colors.background.surface, borderBlock: `1px solid ${colors.border.subtle}` }}>
@@ -413,7 +371,7 @@ export const HomePage = () => {
                   padding: `${spacing[6]}px ${spacing[4]}px`,
                   borderRight: i < 3 ? `1px solid ${colors.border.subtle}` : 'none',
                 }}>
-                  <div style={{ fontSize: 40, fontWeight: 800, color: colors.brand.primary, lineHeight: 1 }}>
+                  <div className="mono" style={{ fontSize: 34, color: colors.text.primary, lineHeight: 1 }}>
                     <AnimCounter target={s.value} suffix={s.suffix} inView={statsSection.inView} />
                   </div>
                   <Text style={{ fontSize: 13, color: colors.text.secondary, marginTop: spacing[2], display: 'block' }}>
@@ -440,7 +398,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 2 }}>
               <div className={`anim-fade-up ${vis(servicesSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <Text style={sectionLabel}>Our Services</Text>
+                <span className="eyebrow">Our Services</span>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   Everything Your Windows Need
                 </Title>
@@ -457,9 +415,10 @@ export const HomePage = () => {
                   >
                     <div style={{
                       width: 48, height: 48, borderRadius: radius.md, flexShrink: 0,
-                      background: `${s.accent}18`,
+                      border: `1px solid ${colors.border.strong}`,
+                      background: colors.background.page,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 22, color: s.accent,
+                      fontSize: 22, color: toneColor(colors, s.tone),
                     }}>
                       {s.icon}
                     </div>
@@ -482,7 +441,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 1 }}>
               <div className={`anim-fade-up ${vis(processSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <Text style={sectionLabel}>The Process</Text>
+                <span className="eyebrow">The Process</span>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   How It Works
                 </Title>
@@ -497,12 +456,11 @@ export const HomePage = () => {
                     className={`anim-fade-up process-step ${vis(processSection.inView)}`}
                     style={{ display: 'flex', gap: spacing[5], alignItems: 'flex-start', ...td(i * 120) }}
                   >
-                    <div style={{
+                    <div className="mono" style={{
                       width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
-                      background: colors.brand.primary,
+                      border: `1px solid ${colors.text.primary}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      color: '#fff', fontSize: 16, fontWeight: 800,
-                      boxShadow: shadows.md,
+                      color: colors.text.primary, fontSize: 15,
                     }}>
                       {item.step}
                     </div>
@@ -517,7 +475,6 @@ export const HomePage = () => {
                 <Button
                   size="large"
                   type="primary"
-                  style={{ fontWeight: 600 }}
                   onClick={() => navigate('/quotes/new')}
                 >
                   Start Your Order <ArrowRightOutlined />
@@ -535,16 +492,18 @@ export const HomePage = () => {
         </div>
       </section>
 
+      <FoldRule />
+
       {/* ── Featured Products ─────────────────────────────── */}
       {featured.length > 0 && (
-        <section ref={productsSection.ref} style={{ ...sectionPad, background: colors.background.surface }}>
+        <section ref={productsSection.ref} style={{ ...sectionPad, background: colors.background.page }}>
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
             <div className={`anim-fade-up ${vis(productsSection.inView)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: spacing[10] }}>
               <div>
-                <Text style={sectionLabel}>Handpicked For You</Text>
-                <Title level={2} style={{ margin: `${spacing[1]}px 0 0` }}>Featured Items</Title>
+                <span className="eyebrow">On the shelf this week</span>
+                <Title level={2} style={{ margin: `${spacing[1]}px 0 0` }}>From the workroom</Title>
               </div>
-              <Button type="link" onClick={() => navigate('/catalogue')} style={{ color: colors.brand.primary, fontWeight: 600, padding: 0 }}>
+              <Button type="link" onClick={() => navigate('/catalogue')} style={{ color: colors.brand.deep, fontWeight: 600, padding: 0 }}>
                 View All <ArrowRightOutlined />
               </Button>
             </div>
@@ -562,7 +521,7 @@ export const HomePage = () => {
       )}
 
       {/* ── Why Choose Us — panel LEFT, list RIGHT ────────── */}
-      <section ref={whyUsSection.ref} style={{ ...sectionPad, background: colors.background.page }}>
+      <section ref={whyUsSection.ref} style={{ ...sectionPad, background: colors.background.surface }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <Row gutter={[64, 48]} align="middle">
             {/* Panel */}
@@ -575,7 +534,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 2 }}>
               <div className={`anim-fade-up ${vis(whyUsSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <Text style={sectionLabel}>Why J&amp;M</Text>
+                <span className="eyebrow">Why J&amp;M</span>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   Crafted With Care, Every Time
                 </Title>
@@ -611,10 +570,10 @@ export const HomePage = () => {
       </section>
 
       {/* ── Testimonials ─────────────────────────────────── */}
-      <section ref={testimonialsSection.ref} style={{ ...sectionPad, background: colors.background.surface }}>
+      <section ref={testimonialsSection.ref} style={{ ...sectionPad, background: colors.background.page }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className={`anim-fade-up ${vis(testimonialsSection.inView)}`} style={{ textAlign: 'center', marginBottom: spacing[12] }}>
-            <Text style={sectionLabel}>Testimonials</Text>
+            <span className="eyebrow">Testimonials</span>
             <Title level={2} style={{ margin: `${spacing[2]}px 0 0` }}>What Our Customers Say</Title>
           </div>
           <Row gutter={[24, 24]}>
@@ -622,21 +581,21 @@ export const HomePage = () => {
               <Col key={i} xs={24} md={8}>
                 <div className={`anim-fade-up ${vis(testimonialsSection.inView)}`} style={{ ...td(i * 120), height: '100%' }}>
                   <div style={{
-                    background: colors.background.page, borderRadius: radius.xl,
+                    background: colors.background.surface, borderRadius: radius.lg,
                     padding: spacing[6], height: '100%',
-                    border: `1px solid ${colors.border.subtle}`,
+                    border: `1px solid ${colors.border.strong}`,
                     display: 'flex', flexDirection: 'column',
                   }}>
-                    <Rate disabled defaultValue={t.rating} style={{ color: '#FDCB6E', fontSize: 14, marginBottom: spacing[3] }} />
-                    <Paragraph style={{ fontSize: 15, lineHeight: 1.75, color: colors.text.secondary, fontStyle: 'italic', flex: 1, marginBottom: spacing[4] }}>
+                    <Rate disabled defaultValue={t.rating} style={{ color: colors.brand.primary, fontSize: 14, marginBottom: spacing[3] }} />
+                    <Paragraph style={{ fontFamily: typography.displayFamily, fontSize: 17, lineHeight: 1.6, color: colors.text.primary, fontStyle: 'italic', flex: 1, marginBottom: spacing[4] }}>
                       "{t.text}"
                     </Paragraph>
                     <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
                       <div style={{
                         width: 44, height: 44, borderRadius: '50%',
-                        background: `linear-gradient(135deg, ${colors.brand.primary}, ${colors.brand.accent})`,
+                        background: colors.brand.dark,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: '#fff', fontWeight: 700, fontSize: 13, flexShrink: 0,
+                        color: colors.text.onDark, fontWeight: 600, fontSize: 13, flexShrink: 0,
                       }}>
                         {t.initials}
                       </div>
@@ -655,37 +614,43 @@ export const HomePage = () => {
 
       {/* ── CTA Banner ───────────────────────────────────── */}
       <section style={{
-        background: `linear-gradient(135deg, ${colors.brand.dark} 0%, ${colors.brand.primary} 100%)`,
+        background: colors.brand.dark,
         padding: `${spacing[16]}px ${spacing[6]}px`,
         textAlign: 'center', position: 'relative', overflow: 'hidden',
       }}>
-        <div style={{ position: 'absolute', top: -80, left: -80, width: 280, height: 280, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', bottom: -60, right: -60, width: 240, height: 240, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+        {/* Faint vertical pleat lines */}
+        <div aria-hidden style={{ position: 'absolute', inset: 0, display: 'flex', pointerEvents: 'none' }}>
+          {[...Array(16)].map((_, i) => (
+            <div key={i} style={{ flex: 1, borderRight: '1px solid rgba(255,255,255,0.05)' }} />
+          ))}
+        </div>
         <div style={{ maxWidth: 620, margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div style={{
             display: 'inline-flex', alignItems: 'center', gap: spacing[2],
-            background: 'rgba(255,255,255,0.15)', borderRadius: radius.pill,
-            padding: `6px ${spacing[4]}px`, marginBottom: spacing[4],
-            color: '#fff', fontSize: 13, fontWeight: 600,
+            marginBottom: spacing[4],
+            color: colors.brand.peach, fontSize: 12, fontWeight: 600,
+            letterSpacing: '0.14em', textTransform: 'uppercase',
           }}>
-            <CheckOutlined /> Free quotes — no obligation whatsoever
+            <CheckOutlined /> Free quotes — no obligation
           </div>
-          <Title className="cta-title" style={{ color: '#fff', fontSize: 40, fontWeight: 800, lineHeight: 1.2, marginBottom: spacing[4] }}>
-            Ready to Transform Your Space?
+          <Title className="cta-title" style={{ color: colors.text.onDark, fontSize: 44, lineHeight: 1.1, marginBottom: spacing[4] }}>
+            Bring us your window.
           </Title>
-          <Paragraph style={{ color: 'rgba(255,255,255,0.85)', fontSize: 17, lineHeight: 1.7, marginBottom: spacing[8] }}>
-            Tell us your vision — measurements, fabric, style — and we'll send you a personalised quote within 24 hours, completely free.
+          <Paragraph style={{ color: 'rgba(255,255,255,0.75)', fontSize: 17, lineHeight: 1.7, marginBottom: spacing[8] }}>
+            Final price is based on your measurements and fabric choice. Tell us both and we'll send a personalised
+            quote within 24 hours — and confirm everything before any cutting begins.
           </Paragraph>
           <Space size="large" wrap style={{ justifyContent: 'center' }}>
             <Button
               size="large"
-              style={{ backgroundColor: '#fff', borderColor: '#fff', color: colors.brand.primary, fontWeight: 700, height: 52, paddingInline: spacing[10] }}
+              type="primary"
+              style={{ height: 48, paddingInline: spacing[8] }}
               onClick={() => navigate('/quotes/new')}
             >
-              Get a Free Quote
+              Request a quote
             </Button>
-            <Button size="large" ghost style={{ height: 52, paddingInline: spacing[8] }} onClick={() => navigate('/catalogue')}>
-              Browse Catalogue
+            <Button size="large" ghost style={{ height: 48, paddingInline: spacing[8], borderColor: 'rgba(255,255,255,0.5)' }} onClick={() => navigate('/catalogue')}>
+              View the catalogue
             </Button>
           </Space>
         </div>

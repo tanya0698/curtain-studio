@@ -6,15 +6,15 @@ import {
   SunOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Badge, Button, Drawer, Grid, Menu, Space, Typography } from 'antd';
+import { Badge, Button, Drawer, Grid, Menu, Space } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../features/auth/hooks/useAuth';
 import { useCart } from '../../../features/cart/contexts/CartContext';
 import { useColors, useTheme, spacing } from '../../../lib/theme';
+import { Wordmark } from './Wordmark';
 
 const { useBreakpoint } = Grid;
-const { Text } = Typography;
 
 export const Navbar = () => {
   const { isAuthenticated, isAdmin, logout } = useAuth();
@@ -35,89 +35,74 @@ export const Navbar = () => {
     { key: '/catalogue', label: <Link to="/catalogue">Catalogue</Link> },
   ];
 
+  const linkStyle = { color: colors.text.secondary, fontSize: 14 };
+  const iconBtn = { background: colors.background.surface };
+
+  const themeButton = (
+    <Button
+      shape="circle"
+      icon={isDark ? <SunOutlined /> : <MoonOutlined />}
+      onClick={toggleTheme}
+      style={iconBtn}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    />
+  );
+
+  const cartButton = (
+    <Badge count={totalItems} size="small" color={colors.brand.primary}>
+      <Button shape="circle" icon={<ShoppingCartOutlined />} onClick={() => navigate('/cart')} style={iconBtn} aria-label="Cart" />
+    </Badge>
+  );
+
   return (
     <header style={{
       position: 'sticky',
       top: 0,
       zIndex: 1000,
-      padding: '10px 16px 6px',
       background: colors.background.page,
+      borderBottom: `1px solid ${colors.border.strong}`,
     }}>
     <div className="nav-pill" style={{
-      background: `linear-gradient(135deg, ${colors.brand.dark} 0%, ${colors.brand.primary} 100%)`,
-      borderRadius: 16,
-      padding: `0 ${spacing[6]}px`,
+      maxWidth: 1180,
+      margin: '0 auto',
+      padding: `0 ${spacing[8]}px`,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      height: 56,
-      boxShadow: '0 4px 20px rgba(45,43,85,0.28)',
+      height: 72,
     }}>
       <Link to="/" style={{ textDecoration: 'none' }}>
-        <Text strong style={{ color: '#fff', fontSize: 20, letterSpacing: 1 }}>
-          ✂️ Curtain Studio
-        </Text>
+        <Wordmark />
       </Link>
 
       {screens.md ? (
         <Space size="large">
-          <Link to="/" style={{ color: '#fff' }}>Home</Link>
-          <Link to="/catalogue" style={{ color: '#fff' }}>Catalogue</Link>
-          {isAdmin && <Link to="/admin" style={{ color: colors.brand.accent }}>Admin</Link>}
+          <Link to="/" style={linkStyle}>Home</Link>
+          <Link to="/catalogue" style={linkStyle}>Catalogue</Link>
+          <Link to="/quotes/new" style={linkStyle}>Request a quote</Link>
+          {isAdmin && <Link to="/admin" style={{ ...linkStyle, color: colors.brand.deep }}>Admin</Link>}
 
-          <Button
-            icon={isDark ? <SunOutlined /> : <MoonOutlined />}
-            onClick={toggleTheme}
-            style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          />
-
-          <Badge count={totalItems} size="small">
-            <Button
-              icon={<ShoppingCartOutlined />}
-              onClick={() => navigate('/cart')}
-              style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}
-            />
-          </Badge>
+          {themeButton}
+          {cartButton}
 
           {isAuthenticated ? (
             <Space>
-              <Button
-                icon={<UserOutlined />}
-                onClick={() => navigate('/account')}
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}
-              />
-              <Button
-                icon={<LogoutOutlined />}
-                onClick={handleLogout}
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.4)', color: '#fff' }}
-              />
+              <Button shape="circle" icon={<UserOutlined />} onClick={() => navigate('/account')} style={iconBtn} aria-label="My account" />
+              <Button shape="circle" icon={<LogoutOutlined />} onClick={handleLogout} style={iconBtn} aria-label="Sign out" />
             </Space>
           ) : (
             <Space>
-              <Button onClick={() => navigate('/login')} ghost>Sign In</Button>
-              <Button
-                onClick={() => navigate('/register')}
-                style={{ backgroundColor: colors.brand.accent, borderColor: colors.brand.accent }}
-                type="primary"
-              >
-                Register
-              </Button>
+              <Button onClick={() => navigate('/login')}>Sign In</Button>
+              <Button type="primary" onClick={() => navigate('/register')}>Register</Button>
             </Space>
           )}
         </Space>
       ) : (
         <Space>
-          <Button
-            icon={isDark ? <SunOutlined /> : <MoonOutlined />}
-            onClick={toggleTheme}
-            ghost
-            title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          />
-          <Badge count={totalItems} size="small">
-            <Button icon={<ShoppingCartOutlined />} onClick={() => navigate('/cart')} ghost />
-          </Badge>
-          <Button icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} ghost />
+          {themeButton}
+          {cartButton}
+          <Button shape="circle" icon={<MenuOutlined />} onClick={() => setDrawerOpen(true)} style={iconBtn} aria-label="Menu" />
         </Space>
       )}
 
@@ -128,6 +113,7 @@ export const Navbar = () => {
           mode="inline"
           items={[
             ...navLinks,
+            { key: '/quotes/new', label: <Link to="/quotes/new">Request a quote</Link> },
             ...(isAdmin ? [{ key: '/admin', label: <Link to="/admin">Admin Panel</Link> }] : []),
             ...(isAuthenticated
               ? [

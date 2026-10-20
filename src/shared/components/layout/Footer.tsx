@@ -1,41 +1,49 @@
 import { Typography } from 'antd';
+import { Link } from 'react-router-dom';
 import { useColors, spacing } from '../../../lib/theme';
+import { Wordmark } from './Wordmark';
 
 const { Text } = Typography;
 
 export const Footer = () => {
   const colors = useColors();
+  const muted = { color: colors.text.muted, fontSize: 13 };
   return (
     <footer style={{
-      background: colors.brand.dark,
-      color: '#fff',
-      padding: `${spacing[8]}px ${spacing[6]}px`,
+      background: colors.background.page,
+      borderTop: `1px solid ${colors.border.strong}`,
+      padding: `${spacing[10]}px ${spacing[8]}px ${spacing[8]}px`,
       marginTop: 'auto',
     }}>
-      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[8] }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: spacing[8] }}>
         <div>
-          <Text strong style={{ color: '#fff', fontSize: 18 }}>✂️ Curtain Studio</Text>
-          <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: spacing[2] }}>
-            Custom designs, ready-made curtains, fabrics &amp; alterations — crafted with care.
+          <Wordmark />
+          <p style={{ ...muted, marginTop: spacing[3], maxWidth: '34ch' }}>
+            Custom curtains, ready-made panels, fabric by the metre and alterations — measured twice, cut once, in Harare.
           </p>
         </div>
         <div>
-          <Text strong style={{ color: '#fff' }}>Services</Text>
-          <ul style={{ listStyle: 'none', padding: 0, marginTop: spacing[2] }}>
+          <span className="eyebrow">Services</span>
+          <ul style={{ listStyle: 'none', padding: 0, marginTop: spacing[3] }}>
             {['Custom Curtains', 'Ready-Made', 'Fabrics', 'Alterations'].map(s => (
-              <li key={s} style={{ color: 'rgba(255,255,255,0.7)', marginBottom: spacing[1] }}>{s}</li>
+              <li key={s} style={{ ...muted, marginBottom: spacing[1] }}>{s}</li>
             ))}
           </ul>
         </div>
         <div>
-          <Text strong style={{ color: '#fff' }}>Contact</Text>
-          <p style={{ color: 'rgba(255,255,255,0.7)', marginTop: spacing[2] }}>
-            Reach us via WhatsApp or the quote request form for custom orders.
+          <span className="eyebrow">Contact</span>
+          <p style={{ ...muted, marginTop: spacing[3] }}>
+            Reach us via WhatsApp or the <Link to="/quotes/new" style={{ color: colors.brand.deep }}>quote request form</Link> for custom orders.
           </p>
         </div>
       </div>
-      <div style={{ textAlign: 'center', marginTop: spacing[8], borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: spacing[4] }}>
-        <Text style={{ color: 'rgba(255,255,255,0.5)' }}>© {new Date().getFullYear()} Curtain Studio. All rights reserved.</Text>
+      <div style={{
+        maxWidth: 1180, margin: `${spacing[8]}px auto 0`, paddingTop: spacing[4],
+        borderTop: `1px solid ${colors.border.subtle}`,
+        display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: spacing[3],
+      }}>
+        <Text style={muted}>© {new Date().getFullYear()} J&amp;M Curtain Studio — Harare</Text>
+        <Text style={muted}>Custom curtains · Ready-made · Fabrics · Alterations</Text>
       </div>
     </footer>
   );

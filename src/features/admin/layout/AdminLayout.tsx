@@ -6,14 +6,14 @@ import {
   ShoppingOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Layout, Menu, Typography } from 'antd';
+import { Layout, Menu } from 'antd';
 import { useState, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useColors, spacing } from '../../../lib/theme';
+import { Wordmark } from '../../../shared/components/layout/Wordmark';
 
 const { Sider, Content } = Layout;
-const { Text } = Typography;
 
 const MENU_ITEMS = [
   { key: '/admin', icon: <DashboardOutlined />, label: 'Dashboard' },
@@ -44,7 +44,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
         style={{ background: colors.brand.dark, position: 'relative', height: '100vh' }}
       >
         <div style={{ padding: `${spacing[6]}px ${spacing[4]}px`, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-          <Text strong style={{ color: '#fff', fontSize: 16 }}>✂️ Admin Panel</Text>
+          <Wordmark inverse sub="Workroom" />
         </div>
 
         <Menu
