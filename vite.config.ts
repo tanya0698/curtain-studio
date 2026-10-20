@@ -10,13 +10,10 @@ export default defineConfig({
       includeAssets: ['favicon.svg', 'apple-touch-icon.png'],
       workbox: {
         maximumFileSizeToCacheInBytes: 5_000_000,
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'supabase-api', networkTimeoutSeconds: 10 },
-          },
-        ],
+        // Only the app shell is precached. Supabase responses are deliberately
+        // NOT runtime-cached: they include signed-in customers' orders and
+        // profiles, which would outlive logout on shared devices.
+        cleanupOutdatedCaches: true,
       },
       manifest: {
         name: 'J&M Curtain Studio',
