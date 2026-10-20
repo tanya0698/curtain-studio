@@ -3,6 +3,7 @@ import { Button, Card, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import type { Product } from '../../../shared/types';
 import { useColors, radius, spacing, typography } from '../../../lib/theme';
+import { ImagePlaceholder } from '../../../shared/components/ImagePlaceholder';
 
 const { Text } = Typography;
 
@@ -27,17 +28,7 @@ export const ProductCard = ({ product }: Props) => {
             style={{ height: 220, objectFit: 'cover', borderRadius: 0 }}
           />
         ) : (
-          // No photo yet — a strip of pleats in the palette instead of an emoji
-          <div aria-hidden style={{ height: 220, display: 'flex', gap: 2, padding: `${spacing[6]}px ${spacing[6]}px 0`, background: colors.background.muted }}>
-            {[colors.brand.dark, colors.brand.light, colors.brand.accent, colors.text.secondary, colors.brand.primary, colors.brand.peach].map((c, i) => (
-              <div key={i} style={{
-                flex: 1, background: c,
-                borderRadius: '60px 60px 0 0',
-                marginTop: i % 2 ? 18 : 0,
-                boxShadow: 'inset -6px 0 10px rgba(0,0,0,0.12)',
-              }} />
-            ))}
-          </div>
+          <ImagePlaceholder style={{ height: 220 }} />
         )
       }
       styles={{ body: { padding: `${spacing[4]}px ${spacing[4]}px ${spacing[4]}px` } }}

@@ -1,4 +1,4 @@
-import { Button, Col, Grid, Rate, Row, Space, Typography } from 'antd';
+import { Avatar, Button, Col, Grid, Rate, Row, Space, Typography } from 'antd';
 const { useBreakpoint } = Grid;
 import {
   ArrowRightOutlined,
@@ -11,14 +11,16 @@ import {
   TeamOutlined,
   ThunderboltOutlined,
   ToolOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProductCard } from '../../catalogue/components/ProductCard';
 import { catalogueService } from '../../catalogue/services/catalogueService';
 import type { Product } from '../../../shared/types';
-import { useColors, radius, shadows, spacing, typography } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, typography, iconSize } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
+import { Eyebrow, Heading } from '../../../shared/components/typography';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -217,12 +219,12 @@ const QualityPanel = () => {
       }}>
         <CheckCircleOutlined style={{ color: '#fff' }} />
       </div>
-      <div style={{ color: '#fff', fontFamily: typography.displayFamily, fontSize: 24, lineHeight: 1.15 }}>
+      <div style={{ color: '#fff', fontSize: 22, fontWeight: typography.fontWeights.bold, lineHeight: 1.2 }}>
         J&amp;M Quality<br />Guarantee
       </div>
       <div style={{ display: 'flex', gap: 4 }}>
         {[...Array(5)].map((_, i) => (
-          <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: 16 }} />
+          <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: iconSize.md }} />
         ))}
       </div>
       <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
@@ -266,9 +268,9 @@ const WHY_US = [
 ];
 
 const TESTIMONIALS = [
-  { name: 'Sarah M.', initials: 'SM', rating: 5, text: 'The curtains are absolutely stunning. The quality exceeded every expectation and my living room feels completely transformed.' },
-  { name: 'James K.', initials: 'JK', rating: 5, text: "Professional, fast, and the fit was perfect. I've recommended J&M to everyone — I won't go anywhere else for curtains." },
-  { name: 'Linda T.', initials: 'LT', rating: 5, text: 'They transformed my bedroom completely. The fabric choice was spot-on and the finish is immaculate. Worth every penny.' },
+  { name: 'Sarah M.', rating: 5, text: 'The curtains are absolutely stunning. The quality exceeded every expectation and my living room feels completely transformed.' },
+  { name: 'James K.', rating: 5, text: "Professional, fast, and the fit was perfect. I've recommended J&M to everyone — I won't go anywhere else for curtains." },
+  { name: 'Linda T.', rating: 5, text: 'They transformed my bedroom completely. The fabric choice was spot-on and the finish is immaculate. Worth every penny.' },
 ];
 
 // ── Component ────────────────────────────────────────────────
@@ -314,12 +316,12 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 1 }}>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(0)}>
-                <span className="eyebrow">Harare — made to measure</span>
+                <Eyebrow>Harare — made to measure</Eyebrow>
               </div>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(120)}>
-                <Title className="hero-title" style={{ fontSize: 'clamp(2.4rem, 4.6vw, 4rem)', lineHeight: 1.04, margin: `${spacing[3]}px 0 ${spacing[5]}px` }}>
+                <Heading level={1} display="lg" style={{ margin: `${spacing[3]}px 0 ${spacing[5]}px` }}>
                   Every pleat,<br />cut and hung<br />by hand.
-                </Title>
+                </Heading>
               </div>
               <div className={`anim-fade-up ${vis(mounted)}`} style={td(240)}>
                 <Paragraph style={{ fontSize: 17, lineHeight: 1.65, color: colors.text.secondary, maxWidth: '46ch', marginBottom: spacing[8] }}>
@@ -398,7 +400,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 2 }}>
               <div className={`anim-fade-up ${vis(servicesSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <span className="eyebrow">Our Services</span>
+                <Eyebrow>Our Services</Eyebrow>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   Everything Your Windows Need
                 </Title>
@@ -441,7 +443,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 1 }}>
               <div className={`anim-fade-up ${vis(processSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <span className="eyebrow">The Process</span>
+                <Eyebrow>The Process</Eyebrow>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   How It Works
                 </Title>
@@ -500,7 +502,7 @@ export const HomePage = () => {
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
             <div className={`anim-fade-up ${vis(productsSection.inView)}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: spacing[10] }}>
               <div>
-                <span className="eyebrow">On the shelf this week</span>
+                <Eyebrow>On the shelf this week</Eyebrow>
                 <Title level={2} style={{ margin: `${spacing[1]}px 0 0` }}>From the workroom</Title>
               </div>
               <Button type="link" onClick={() => navigate('/catalogue')} style={{ color: colors.brand.deep, fontWeight: 600, padding: 0 }}>
@@ -534,7 +536,7 @@ export const HomePage = () => {
             {/* Content */}
             <Col xs={{ span: 24, order: 1 }} md={{ span: 13, order: 2 }}>
               <div className={`anim-fade-up ${vis(whyUsSection.inView)}`} style={{ marginBottom: spacing[8] }}>
-                <span className="eyebrow">Why J&amp;M</span>
+                <Eyebrow>Why J&amp;M</Eyebrow>
                 <Title level={2} style={{ margin: `${spacing[2]}px 0 ${spacing[3]}px` }}>
                   Crafted With Care, Every Time
                 </Title>
@@ -573,7 +575,7 @@ export const HomePage = () => {
       <section ref={testimonialsSection.ref} style={{ ...sectionPad, background: colors.background.page }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>
           <div className={`anim-fade-up ${vis(testimonialsSection.inView)}`} style={{ textAlign: 'center', marginBottom: spacing[12] }}>
-            <span className="eyebrow">Testimonials</span>
+            <Eyebrow>Testimonials</Eyebrow>
             <Title level={2} style={{ margin: `${spacing[2]}px 0 0` }}>What Our Customers Say</Title>
           </div>
           <Row gutter={[24, 24]}>
@@ -587,18 +589,15 @@ export const HomePage = () => {
                     display: 'flex', flexDirection: 'column',
                   }}>
                     <Rate disabled defaultValue={t.rating} style={{ color: colors.brand.primary, fontSize: 14, marginBottom: spacing[3] }} />
-                    <Paragraph style={{ fontFamily: typography.displayFamily, fontSize: 17, lineHeight: 1.6, color: colors.text.primary, fontStyle: 'italic', flex: 1, marginBottom: spacing[4] }}>
+                    <Paragraph style={{ fontSize: typography.body.lg.fontSize, lineHeight: typography.body.lg.lineHeight, color: colors.text.primary, flex: 1, marginBottom: spacing[4] }}>
                       "{t.text}"
                     </Paragraph>
                     <div style={{ display: 'flex', alignItems: 'center', gap: spacing[3] }}>
-                      <div style={{
-                        width: 44, height: 44, borderRadius: '50%',
-                        background: colors.brand.dark,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: colors.text.onDark, fontWeight: 600, fontSize: 13, flexShrink: 0,
-                      }}>
-                        {t.initials}
-                      </div>
+                      <Avatar
+                        size={44}
+                        icon={<UserOutlined />}
+                        style={{ background: colors.background.muted, color: colors.text.secondary, flexShrink: 0 }}
+                      />
                       <div>
                         <Text strong style={{ display: 'block', fontSize: 14 }}>{t.name}</Text>
                         <Text type="secondary" style={{ fontSize: 12 }}>Verified Customer</Text>
@@ -633,9 +632,9 @@ export const HomePage = () => {
           }}>
             <CheckOutlined /> Free quotes — no obligation
           </div>
-          <Title className="cta-title" style={{ color: colors.text.onDark, fontSize: 44, lineHeight: 1.1, marginBottom: spacing[4] }}>
+          <Heading level={2} display="md" tone="onDark" style={{ marginBottom: spacing[4] }}>
             Bring us your window.
-          </Title>
+          </Heading>
           <Paragraph style={{ color: 'rgba(255,255,255,0.75)', fontSize: 17, lineHeight: 1.7, marginBottom: spacing[8] }}>
             Final price is based on your measurements and fabric choice. Tell us both and we'll send a personalised
             quote within 24 hours — and confirm everything before any cutting begins.

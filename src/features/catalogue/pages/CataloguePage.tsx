@@ -1,46 +1,37 @@
 import { Col, Empty, Row, Segmented, Skeleton, Typography } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ProductCard } from '../components/ProductCard';
 import { catalogueService } from '../services/catalogueService';
 import type { Product, ProductCategory } from '../../../shared/types';
 import { useColors, spacing } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
+import { CATEGORY_ICONS } from '../../../shared/config/categoryIcons';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 
 const { Title, Text } = Typography;
 
-const CATEGORY_ICONS: Record<string, string> = {
-  'custom-curtains': '🎨',
-  'ready-made': '🛍️',
-  fabrics: '🧵',
-  alterations: '✂️',
-};
-
 export const CataloguePage = () => {
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
   const [activeSlug, setActiveSlug] = useState('all');
-  const [loading, setLoading] = useState(true);
   const colors = useColors();
 
-  useEffect(() => {
-    catalogueService.getCategories().then(({ data }) => {
-      setCategories(data ?? []);
-    });
-  }, []);
-
-  useEffect(() => {
-    setLoading(true);
-    catalogueService.getProducts(activeSlug).then(({ data }) => {
-      setProducts(data ?? []);
-      setLoading(false);
-    });
-  }, [activeSlug]);
+  const categoriesQuery = useSupabaseQuery<ProductCategory[]>(() => catalogueService.getCategories(), []);
+  const productsQuery = useSupabaseQuery<Product[]>(() => catalogueService.getProducts(activeSlug), [activeSlug]);
+  const categories = categoriesQuery.data ?? [];
+  const products = productsQuery.data ?? [];
+  const loading = productsQuery.loading;
+  const error = productsQuery.error ?? categoriesQuery.error;
+  const retry = () => {
+    if (categoriesQuery.error) categoriesQuery.retry();
+    productsQuery.retry();
+  };
 
   const segmentOptions = [
-    { label: '🪟 All', value: 'all' },
+    { label: 'All', value: 'all', icon: CATEGORY_ICONS.all },
     ...categories.map(c => ({
-      label: `${CATEGORY_ICONS[c.slug] ?? ''} ${c.name}`,
+      label: c.name,
       value: c.slug,
+      icon: CATEGORY_ICONS[c.slug],
     })),
   ];
 
@@ -73,6 +64,8 @@ export const CataloguePage = () => {
               </Col>
             ))}
           </Row>
+        ) : error ? (
+          <LoadError what="the catalogue" error={error} onRetry={retry} />
         ) : products.length === 0 ? (
           <Empty description="No products found in this category" />
         ) : (

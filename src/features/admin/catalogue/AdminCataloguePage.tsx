@@ -6,6 +6,7 @@ import {
   UploadOutlined,
 } from '@ant-design/icons';
 import {
+  App,
   Button,
   Col,
   Drawer,
@@ -13,7 +14,6 @@ import {
   Form,
   Input,
   InputNumber,
-  message,
   Popconfirm,
   Row,
   Select,
@@ -24,35 +24,36 @@ import {
   Typography,
   Upload,
 } from 'antd';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { catalogueService } from '../../catalogue/services/catalogueService';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 import { AdminLayout } from '../layout/AdminLayout';
 import type { Product, ProductCategory } from '../../../shared/types';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, iconSize } from '../../../lib/theme';
+import { ImagePlaceholder } from '../../../shared/components/ImagePlaceholder';
 
 const { Title } = Typography;
 const { TextArea } = Input;
 
 export const AdminCataloguePage = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<ProductCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { message } = App.useApp();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
   const [form] = Form.useForm();
   const colors = useColors();
 
-  const fetchProducts = async () => {
-    const { data } = await catalogueService.getProducts();
-    setProducts(data ?? []);
-    setLoading(false);
+  const productsQuery = useSupabaseQuery<Product[]>(() => catalogueService.getProducts(), []);
+  const categoriesQuery = useSupabaseQuery<ProductCategory[]>(() => catalogueService.getCategories(), []);
+  const products = productsQuery.data ?? [];
+  const categories = categoriesQuery.data ?? [];
+  const loadError = productsQuery.error ?? categoriesQuery.error;
+  const fetchProducts = productsQuery.retry;
+  const retryLoad = () => {
+    if (categoriesQuery.error) categoriesQuery.retry();
+    productsQuery.retry();
   };
-
-  useEffect(() => {
-    catalogueService.getProducts().then(({ data }) => { setProducts(data ?? []); setLoading(false); });
-    catalogueService.getCategories().then(({ data }) => setCategories(data ?? []));
-  }, []);
 
   const openDrawer = (product?: Product) => {
     setEditingProduct(product ?? null);
@@ -123,12 +124,14 @@ export const AdminCataloguePage = () => {
       <Table
         dataSource={products}
         rowKey="id"
-        loading={loading}
+        loading={productsQuery.loading}
         scroll={{ x: 800 }}
         locale={{
-          emptyText: (
+          emptyText: loadError ? (
+            <LoadError compact what="the catalogue" error={loadError} onRetry={retryLoad} />
+          ) : (
             <Empty
-              image={<AppstoreOutlined style={{ fontSize: 40, color: colors.brand.accent }} />}
+              image={<AppstoreOutlined style={{ fontSize: iconSize.hero, color: colors.brand.accent }} />}
               description="No products yet"
             />
           ),
@@ -140,7 +143,7 @@ export const AdminCataloguePage = () => {
             width: 60,
             render: (images: string[]) => images?.[0]
               ? <img src={images[0]} alt="" style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 4 }} />
-              : <span style={{ fontSize: 24 }}>🪟</span>,
+              : <ImagePlaceholder size="md" style={{ width: 48, height: 48, borderRadius: 4 }} />,
           },
           { title: 'Name', dataIndex: 'name' },
           {

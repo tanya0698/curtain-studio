@@ -3,7 +3,7 @@ import { Alert, Button, Form, Grid, Input, Typography } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useColors, spacing } from '../../../lib/theme';
+import { useColors, spacing, iconSize } from '../../../lib/theme';
 import { AuthImagePanel } from '../components/AuthImagePanel';
 
 const { useBreakpoint } = Grid;
@@ -50,9 +50,9 @@ export const LoginPage = () => {
               width: 56, height: 56, borderRadius: '50%',
               background: colors.background.muted,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24, margin: '0 auto 14px',
+              fontSize: iconSize.lg, color: colors.brand.primary, margin: '0 auto 14px',
             }}>
-              ✂️
+              <LockOutlined />
             </div>
             <Title level={3} style={{ color: colors.brand.primary, margin: 0 }}>
               Welcome back

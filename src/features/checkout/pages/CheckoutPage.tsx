@@ -1,11 +1,11 @@
-import { CheckCircleOutlined, CreditCardOutlined, MobileOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CreditCardOutlined, MobileOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Divider, Input, Radio, Row, Space, Spin, Switch, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../../cart/contexts/CartContext';
 import { quotesService } from '../../quotes/services/quotesService';
 import { checkoutService } from '../services/checkoutService';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, iconSize } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
 import type { Quote } from '../../../shared/types';
 
@@ -133,7 +133,7 @@ export const CheckoutPage = () => {
     return (
       <CustomerLayout>
         <div style={{ maxWidth: 500, margin: '80px auto', textAlign: 'center', padding: spacing[6] }}>
-          <CheckCircleOutlined style={{ fontSize: 64, color: colors.semantic.success }} />
+          <CheckCircleFilled style={{ fontSize: iconSize.jumbo, color: colors.semantic.success }} />
           <Title level={3} style={{ marginTop: spacing[4] }}>Payment Successful!</Title>
           <Text type="secondary">Your order has been placed. Redirecting to your account...</Text>
         </div>

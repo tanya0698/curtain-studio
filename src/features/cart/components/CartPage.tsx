@@ -1,8 +1,9 @@
 import { DeleteOutlined, MinusOutlined, PlusOutlined, ShoppingCartOutlined } from '@ant-design/icons';
 import { Button, Col, Divider, Empty, InputNumber, Row, Space, Typography } from 'antd';
+import { ImagePlaceholder } from '../../../shared/components/ImagePlaceholder';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../contexts/CartContext';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, iconSize } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
 
 const { Title, Text } = Typography;
@@ -22,7 +23,7 @@ export const CartPage = () => {
 
         {items.length === 0 ? (
           <Empty
-            image={<ShoppingCartOutlined style={{ fontSize: 64, color: colors.brand.accent }} />}
+            image={<ShoppingCartOutlined style={{ fontSize: iconSize.jumbo, color: colors.brand.accent }} />}
             description="Your cart is empty"
           >
             <Button type="primary" onClick={() => navigate('/catalogue')}
@@ -53,7 +54,7 @@ export const CartPage = () => {
                     }}>
                       {item.product.images?.[0]
                         ? <img src={item.product.images[0]} alt={item.product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontSize: 32 }}>🪟</span>
+                        : <ImagePlaceholder size="lg" />
                       }
                     </div>
 

@@ -1,58 +1,72 @@
 import { FileTextOutlined, ShoppingOutlined, TeamOutlined, DollarOutlined } from '@ant-design/icons';
 import { Card, Col, Row, Spin, Statistic, Typography } from 'antd';
-import { useEffect, useState } from 'react';
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { supabase } from '../../../lib/api/supabaseClient';
 import { AdminLayout } from '../layout/AdminLayout';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 
 const { Title } = Typography;
 
+interface DashboardData {
+  stats: { orders: number; quotes: number; customers: number; revenue: number };
+  chartData: { month: string; revenue: number }[];
+}
+
+const fetchDashboard = async () => {
+  const [ordersRes, quotesRes, customersRes] = await Promise.all([
+    supabase.from('orders').select('id, total_amount, created_at'),
+    supabase.from('quotes').select('id, status'),
+    supabase.from('profiles').select('id').eq('role', 'customer'),
+  ]);
+
+  // Any failure means the numbers would be wrong — report it rather than showing zeros
+  const error = ordersRes.error ?? quotesRes.error ?? customersRes.error;
+  if (error) return { data: null, error };
+
+  const orders = ordersRes.data ?? [];
+  const revenue = orders.reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
+
+  // Monthly revenue for last 6 months
+  const now = new Date();
+  const chartData = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const label = d.toLocaleDateString('en', { month: 'short', year: '2-digit' });
+    const monthRevenue = orders
+      .filter(o => {
+        const created = new Date(o.created_at);
+        return created.getMonth() === d.getMonth() && created.getFullYear() === d.getFullYear();
+      })
+      .reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
+    return { month: label, revenue: monthRevenue };
+  });
+
+  const data: DashboardData = {
+    stats: {
+      orders: orders.length,
+      quotes: (quotesRes.data ?? []).filter(q => q.status === 'pending').length,
+      customers: (customersRes.data ?? []).length,
+      revenue,
+    },
+    chartData,
+  };
+  return { data, error: null };
+};
+
 export const DashboardPage = () => {
-  const [stats, setStats] = useState({ orders: 0, quotes: 0, customers: 0, revenue: 0 });
-  const [chartData, setChartData] = useState<{ month: string; revenue: number }[]>([]);
-  const [loading, setLoading] = useState(true);
   const colors = useColors();
+  const dashboardQuery = useSupabaseQuery<DashboardData>(fetchDashboard, []);
 
-  useEffect(() => {
-    const fetchStats = async () => {
-      const [ordersRes, quotesRes, customersRes] = await Promise.all([
-        supabase.from('orders').select('id, total_amount, created_at'),
-        supabase.from('quotes').select('id, status'),
-        supabase.from('profiles').select('id').eq('role', 'customer'),
-      ]);
-
-      const orders = ordersRes.data ?? [];
-      const revenue = orders.reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
-
-      setStats({
-        orders: orders.length,
-        quotes: (quotesRes.data ?? []).filter(q => q.status === 'pending').length,
-        customers: (customersRes.data ?? []).length,
-        revenue,
-      });
-
-      // Monthly revenue for last 6 months
-      const now = new Date();
-      const monthData = Array.from({ length: 6 }, (_, i) => {
-        const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
-        const label = d.toLocaleDateString('en', { month: 'short', year: '2-digit' });
-        const monthRevenue = orders
-          .filter(o => {
-            const created = new Date(o.created_at);
-            return created.getMonth() === d.getMonth() && created.getFullYear() === d.getFullYear();
-          })
-          .reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
-        return { month: label, revenue: monthRevenue };
-      });
-      setChartData(monthData);
-      setLoading(false);
-    };
-
-    fetchStats();
-  }, []);
-
-  if (loading) return <AdminLayout><Spin size="large" /></AdminLayout>;
+  if (dashboardQuery.error) {
+    return (
+      <AdminLayout>
+        <LoadError what="the dashboard" error={dashboardQuery.error} onRetry={dashboardQuery.retry} />
+      </AdminLayout>
+    );
+  }
+  if (!dashboardQuery.data) return <AdminLayout><Spin size="large" /></AdminLayout>;
+  const { stats, chartData } = dashboardQuery.data;
 
   return (
     <AdminLayout>

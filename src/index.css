@@ -1,46 +1,7 @@
 /* ── "The Fold" design tokens ──
-   Mirrors src/lib/theme/colors*.ts for the few things styled in plain CSS.
-   Ant Design components get their colours from buildAntdTheme(). */
-
-:root {
-  --ink: #3A2A20;
-  --ink-soft: #6E5442;
-  --ink-faint: rgba(58, 42, 32, 0.56);
-  --brass: #CE6A3E;
-  --brass-deep: #A8532E;
-  --brass-soft: rgba(206, 106, 62, 0.14);
-  --caramel: #C67B48;
-  --caramel-soft: rgba(198, 123, 72, 0.16);
-  --linen: #FBF1E6;
-  --surface: #FFFCF7;
-  --line: rgba(58, 42, 32, 0.15);
-  --line-soft: rgba(58, 42, 32, 0.08);
-  --glow: rgba(242, 183, 141, 0.5);
-  --shadow-sm: 0 1px 2px rgba(58, 42, 32, 0.08);
-  --shadow-md: 0 6px 22px rgba(58, 42, 32, 0.10);
-
-  --font-display: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
-  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  --font-mono: 'SF Mono', 'Cascadia Code', Consolas, 'Roboto Mono', monospace;
-}
-
-[data-theme="dark"] {
-  --ink: #F5E4D3;
-  --ink-soft: #D9BFA8;
-  --ink-faint: rgba(245, 228, 211, 0.56);
-  --brass: #E88752;
-  --brass-deep: #F3A06E;
-  --brass-soft: rgba(232, 135, 82, 0.2);
-  --caramel: #F0B37E;
-  --caramel-soft: rgba(240, 179, 126, 0.18);
-  --linen: #201510;
-  --surface: #2B1C14;
-  --line: rgba(245, 228, 211, 0.14);
-  --line-soft: rgba(245, 228, 211, 0.08);
-  --glow: rgba(240, 179, 126, 0.28);
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.35);
-}
+   Every var(--…) used here is published from src/lib/theme by
+   ThemeProvider → setCSSCustomProperties(), per colour mode. Don't define
+   colour or font values in this file. */
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -48,9 +9,10 @@
 
 body {
   margin: 0;
-  background: var(--linen);
+  /* fallback only covers the first frame before React mounts */
+  background: var(--linen, #FBF1E6);
   color: var(--ink);
-  font-family: var(--font-body);
+  font-family: var(--font-body, sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -69,21 +31,20 @@ img {
 
 /* ── Type ── */
 
+/* Sizes and weight come from the antd tokens (buildAntdTheme); this only
+   adds what antd has no token for. */
 h1.ant-typography,
 h2.ant-typography,
-h3.ant-typography,
-h4.ant-typography {
-  font-family: var(--font-display);
-  font-weight: 400 !important;
-  letter-spacing: -0.005em;
+h3.ant-typography {
+  letter-spacing: -0.015em;
   text-wrap: balance;
 }
 
 .eyebrow {
   display: block;
   font-family: var(--font-body);
-  font-size: 0.72rem;
-  letter-spacing: 0.14em;
+  font-size: var(--eyebrow-size);
+  letter-spacing: var(--eyebrow-tracking);
   text-transform: uppercase;
   color: var(--ink-faint);
   font-weight: 600;
@@ -238,17 +199,6 @@ h4.ant-typography {
     padding-bottom: 48px !important;
   }
 
-  /* Hero headline */
-  .hero-title {
-    font-size: 36px !important;
-    line-height: 1.08 !important;
-  }
-
-  /* CTA headline */
-  .cta-title {
-    font-size: 28px !important;
-  }
-
   .pleats {
     height: 200px;
   }
@@ -277,15 +227,5 @@ h4.ant-typography {
   .nav-pill {
     padding-left: 12px !important;
     padding-right: 12px !important;
-  }
-}
-
-@media (max-width: 480px) {
-  .hero-title {
-    font-size: 32px !important;
-  }
-
-  .cta-title {
-    font-size: 24px !important;
   }
 }

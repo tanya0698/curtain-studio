@@ -1,9 +1,9 @@
 -- Seed product categories
 insert into product_categories (id, name, slug, icon) values
-  ('11111111-0000-0000-0000-000000000001', 'Custom Curtains', 'custom-curtains', '🎨'),
-  ('11111111-0000-0000-0000-000000000002', 'Ready-Made', 'ready-made', '🛍️'),
-  ('11111111-0000-0000-0000-000000000003', 'Fabrics', 'fabrics', '🧵'),
-  ('11111111-0000-0000-0000-000000000004', 'Alterations', 'alterations', '✂️');
+  ('11111111-0000-0000-0000-000000000001', 'Custom Curtains', 'custom-curtains', 'ScissorOutlined'),
+  ('11111111-0000-0000-0000-000000000002', 'Ready-Made', 'ready-made', 'ShoppingOutlined'),
+  ('11111111-0000-0000-0000-000000000003', 'Fabrics', 'fabrics', 'BgColorsOutlined'),
+  ('11111111-0000-0000-0000-000000000004', 'Alterations', 'alterations', 'ToolOutlined');
 
 -- Seed products (from catalogue)
 insert into products (category_id, name, description, starting_price, unit, is_quotable, is_purchasable) values

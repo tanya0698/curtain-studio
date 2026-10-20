@@ -1,6 +1,6 @@
 import { CheckOutlined, ScissorOutlined, StarFilled } from '@ant-design/icons';
 import { Typography } from 'antd';
-import { useColors, typography } from '../../../lib/theme';
+import { useColors, typography, iconSize } from '../../../lib/theme';
 
 const { Text } = Typography;
 
@@ -41,11 +41,11 @@ export const AuthImagePanel = () => {
         marginBottom: 24,
         position: 'relative', zIndex: 1,
       }}>
-        <ScissorOutlined style={{ fontSize: 38, color: colors.brand.peach }} />
+        <ScissorOutlined style={{ fontSize: iconSize.hero, color: colors.brand.peach }} />
       </div>
 
       {/* Brand name */}
-      <div style={{ color: '#fff', fontFamily: typography.displayFamily, fontSize: 30, textAlign: 'center', marginBottom: 6, position: 'relative', zIndex: 1 }}>
+      <div style={{ color: '#fff', fontSize: 28, fontWeight: typography.fontWeights.bold, letterSpacing: '-0.02em', textAlign: 'center', marginBottom: 6, position: 'relative', zIndex: 1 }}>
         J&amp;M Curtain Studio
       </div>
       <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 14, textAlign: 'center', marginBottom: 36, position: 'relative', zIndex: 1 }}>
@@ -62,7 +62,7 @@ export const AuthImagePanel = () => {
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               flexShrink: 0, marginTop: 1,
             }}>
-              <CheckOutlined style={{ color: '#fff', fontSize: 11 }} />
+              <CheckOutlined style={{ color: '#fff', fontSize: iconSize.sm }} />
             </div>
             <Text style={{ color: 'rgba(255,255,255,0.85)', fontSize: 14, lineHeight: '1.5' }}>{f}</Text>
           </div>
@@ -78,7 +78,7 @@ export const AuthImagePanel = () => {
         position: 'relative', zIndex: 1,
       }}>
         <div style={{ display: 'flex', gap: 2 }}>
-          {[...Array(5)].map((_, i) => <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: 13 }} />)}
+          {[...Array(5)].map((_, i) => <StarFilled key={i} style={{ color: colors.brand.peach, fontSize: iconSize.sm }} />)}
         </div>
         <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: 13, fontWeight: 500 }}>
           500+ happy customers

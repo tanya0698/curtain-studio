@@ -1,12 +1,12 @@
-import { InboxOutlined } from '@ant-design/icons';
+import { InboxOutlined, ReloadOutlined } from '@ant-design/icons';
 import {
+  App,
   Alert,
   Button,
   Col,
   Form,
   Input,
   InputNumber,
-  message,
   Row,
   Select,
   Space,
@@ -22,6 +22,7 @@ import { quotesService } from '../services/quotesService';
 import type { Product } from '../../../shared/types';
 import { useColors, spacing } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -30,10 +31,10 @@ const { Dragger } = Upload;
 const FABRIC_OPTIONS = ['Sheer/Voile', 'Linen', 'Velvet', 'Blackout', 'Printed', 'Poly-Cotton', 'Other'];
 
 export const QuoteRequestPage = () => {
+  const { message } = App.useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
-  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState(0);
@@ -42,14 +43,14 @@ export const QuoteRequestPage = () => {
 
   const preselectedProductId = (location.state as { productId?: string } | null)?.productId;
 
+  const productsQuery = useSupabaseQuery<Product[]>(() => catalogueService.getProducts(), []);
+  const products = (productsQuery.data ?? []).filter(p => p.is_quotable);
+
   useEffect(() => {
-    catalogueService.getProducts().then(({ data }) => {
-      setProducts((data ?? []).filter(p => p.is_quotable));
-      if (preselectedProductId) {
-        form.setFieldsValue({ product_id: preselectedProductId });
-      }
-    });
-  }, [preselectedProductId, form]);
+    if (productsQuery.data && preselectedProductId) {
+      form.setFieldsValue({ product_id: preselectedProductId });
+    }
+  }, [productsQuery.data, preselectedProductId, form]);
 
   const onFinish = async (values: {
     product_id: string;
@@ -115,12 +116,23 @@ export const QuoteRequestPage = () => {
         <Steps current={step} items={steps} style={{ marginBottom: spacing[8] }} />
 
         {error && <Alert type="error" message={error} style={{ marginBottom: spacing[4] }} showIcon />}
+        {productsQuery.error && (
+          <Alert
+            type="warning"
+            showIcon
+            title="We couldn't load our list of services"
+            description="This is usually a brief connection problem on our side."
+            action={<Button size="small" icon={<ReloadOutlined />} onClick={productsQuery.retry}>Try again</Button>}
+            style={{ marginBottom: spacing[4] }}
+          />
+        )}
 
         <Form form={form} layout="vertical" onFinish={onFinish} size="large">
           {step === 0 && (
             <Space direction="vertical" style={{ width: '100%' }} size={spacing[4]}>
               <Form.Item name="product_id" label="What service are you interested in?" rules={[{ required: true, message: 'Please select a product/service' }]}>
                 <Select placeholder="Select a product or service" showSearch optionFilterProp="label"
+                  loading={productsQuery.loading}
                   options={products.map(p => ({ value: p.id, label: `${p.name} — From $${p.starting_price} ${p.unit}` }))}
                 />
               </Form.Item>

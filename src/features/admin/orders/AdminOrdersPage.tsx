@@ -1,11 +1,12 @@
 import { ShoppingOutlined, WhatsAppOutlined } from '@ant-design/icons';
 import { Button, Empty, Select, Space, Table, Tag, Typography } from 'antd';
-import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/api/supabaseClient';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 import { AdminLayout } from '../layout/AdminLayout';
 import type { Order, OrderStatus } from '../../../shared/types';
 import { StatusChip } from '../../../shared/components/StatusChip';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, iconSize } from '../../../lib/theme';
 import { buildWhatsAppLink } from '../../../shared/config/whatsapp';
 import { orderWhatsAppMessage } from '../../../shared/config/orderStatus';
 
@@ -17,30 +18,20 @@ const STATUS_OPTIONS = (
 
 
 export const AdminOrdersPage = () => {
-  const [orders, setOrders] = useState<(Order & { customer?: { full_name: string | null; phone: string | null } })[]>([]);
-  const [loading, setLoading] = useState(true);
   const colors = useColors();
 
-  const fetchOrders = async () => {
-    const { data } = await supabase
+  const ordersQuery = useSupabaseQuery<(Order & { customer?: { full_name: string | null; phone: string | null } })[]>(
+    () => supabase
       .from('orders')
       .select('*, customer:profiles(full_name, phone), items:order_items(*, product:products(name))')
-      .order('created_at', { ascending: false });
-    setOrders(data ?? []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    supabase
-      .from('orders')
-      .select('*, customer:profiles(full_name, phone), items:order_items(*, product:products(name))')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setOrders(data ?? []); setLoading(false); });
-  }, []);
+      .order('created_at', { ascending: false }),
+    [],
+  );
+  const orders = ordersQuery.data ?? [];
 
   const updateStatus = async (orderId: string, status: string) => {
     await supabase.from('orders').update({ status }).eq('id', orderId);
-    fetchOrders();
+    ordersQuery.retry();
   };
 
   return (
@@ -56,12 +47,14 @@ export const AdminOrdersPage = () => {
       <Table
         dataSource={orders}
         rowKey="id"
-        loading={loading}
+        loading={ordersQuery.loading}
         scroll={{ x: 900 }}
         locale={{
-          emptyText: (
+          emptyText: ordersQuery.error ? (
+            <LoadError compact what="orders" error={ordersQuery.error} onRetry={ordersQuery.retry} />
+          ) : (
             <Empty
-              image={<ShoppingOutlined style={{ fontSize: 40, color: colors.brand.accent }} />}
+              image={<ShoppingOutlined style={{ fontSize: iconSize.hero, color: colors.brand.accent }} />}
               description="No orders yet"
             />
           ),

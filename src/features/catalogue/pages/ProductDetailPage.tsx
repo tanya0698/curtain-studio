@@ -6,8 +6,11 @@ import {
   ShoppingCartOutlined,
   TagOutlined,
 } from '@ant-design/icons';
-import { Button, Col, Form, InputNumber, message, Row, Skeleton, Space, Tag, Typography } from 'antd';
-import { useEffect, useState } from 'react';
+import { App, Button, Col, Form, InputNumber, Row, Skeleton, Space, Tag, Typography } from 'antd';
+import { ImagePlaceholder } from '../../../shared/components/ImagePlaceholder';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { catalogueService } from '../services/catalogueService';
 import { useCart } from '../../cart/contexts/CartContext';
@@ -19,25 +22,25 @@ import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout
 const { Title, Text, Paragraph } = Typography;
 
 export const ProductDetailPage = () => {
+  const { message } = App.useApp();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
-  const [product, setProduct] = useState<Product | null>(null);
-  const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
   const [width, setWidth] = useState<number | null>(null);
   const [drop, setDrop] = useState<number | null>(null);
   const [activeImage, setActiveImage] = useState(0);
   const colors = useColors();
 
-  useEffect(() => {
-    if (!id) return;
-    catalogueService.getProductById(id).then(({ data }) => {
-      setProduct(data);
-      setLoading(false);
-    });
-  }, [id]);
+  const productQuery = useSupabaseQuery<Product>(
+    () => catalogueService.getProductById(id ?? '').then(res =>
+      // No row (PGRST116) or a malformed id (22P02) means "not found", not an outage
+      res.error && ['PGRST116', '22P02'].includes(res.error.code) ? { data: null, error: null } : res,
+    ),
+    [id],
+  );
+  const { data: product, loading } = productQuery;
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -58,6 +61,16 @@ export const ProductDetailPage = () => {
       <CustomerLayout>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: `${spacing[8]}px ${spacing[6]}px` }}>
           <Skeleton active paragraph={{ rows: 10 }} />
+        </div>
+      </CustomerLayout>
+    );
+  }
+
+  if (productQuery.error) {
+    return (
+      <CustomerLayout>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: `${spacing[8]}px ${spacing[6]}px` }}>
+          <LoadError what="this product" error={productQuery.error} onRetry={productQuery.retry} />
         </div>
       </CustomerLayout>
     );
@@ -103,7 +116,7 @@ export const ProductDetailPage = () => {
               {product.images?.[activeImage] ? (
                 <img src={product.images[activeImage]} alt={product.name} style={{ width: '100%', objectFit: 'cover' }} />
               ) : (
-                <span style={{ fontSize: 80 }}>🪟</span>
+                <ImagePlaceholder size="jumbo" style={{ minHeight: 360 }} />
               )}
             </div>
             {product.images?.length > 1 && (

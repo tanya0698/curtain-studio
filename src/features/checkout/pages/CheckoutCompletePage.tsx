@@ -2,13 +2,13 @@
 // here after a card/ZIMSWITCH payment on Paynow's hosted page. The webhook
 // (paynow-status, called by Paynow itself) may arrive slightly after this
 // redirect, so we poll a few times before settling on a final state.
-import { CheckCircleOutlined, CloseCircleOutlined } from '@ant-design/icons';
+import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import { Button, Spin, Typography } from 'antd';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useCart } from '../../cart/contexts/CartContext';
 import { checkoutService } from '../services/checkoutService';
-import { useColors, spacing } from '../../../lib/theme';
+import { useColors, spacing, iconSize } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
 
 const { Title, Text } = Typography;
@@ -74,7 +74,7 @@ export const CheckoutCompletePage = () => {
 
         {result === 'paid' && (
           <>
-            <CheckCircleOutlined style={{ fontSize: 64, color: colors.semantic.success }} />
+            <CheckCircleFilled style={{ fontSize: iconSize.jumbo, color: colors.semantic.success }} />
             <Title level={3} style={{ marginTop: spacing[4] }}>Payment Successful!</Title>
             <Text type="secondary">Your order has been placed. Redirecting to your account...</Text>
           </>
@@ -82,7 +82,7 @@ export const CheckoutCompletePage = () => {
 
         {result === 'cancelled' && (
           <>
-            <CloseCircleOutlined style={{ fontSize: 64, color: colors.semantic.error }} />
+            <CloseCircleFilled style={{ fontSize: iconSize.jumbo, color: colors.semantic.error }} />
             <Title level={3} style={{ marginTop: spacing[4] }}>Payment Cancelled</Title>
             <Text type="secondary">Your payment wasn't completed. You can try again from your cart.</Text>
             <div style={{ marginTop: spacing[4] }}>

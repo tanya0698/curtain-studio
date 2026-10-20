@@ -1,5 +1,5 @@
 import { WhatsAppOutlined } from '@ant-design/icons';
-import { Badge, Button, Collapse, Form, Image, Input, InputNumber, message, Segmented, Select, Space, Tag, Typography } from 'antd';
+import { App, Badge, Button, Collapse, Form, Image, Input, InputNumber, Segmented, Select, Space, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { quotesService } from '../../quotes/services/quotesService';
 import { AdminLayout } from '../layout/AdminLayout';
@@ -7,6 +7,8 @@ import type { Quote, QuoteStatus } from '../../../shared/types';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 import { buildWhatsAppLink } from '../../../shared/config/whatsapp';
 import { StatusChip } from '../../../shared/components/StatusChip';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 
 const { Title, Text } = Typography;
 const { Panel } = Collapse;
@@ -154,27 +156,19 @@ const QuoteCard = ({ quote, saving, onRespond }: QuoteCardProps) => {
 };
 
 export const AdminQuotesPage = () => {
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { message } = App.useApp();
   const [saving, setSaving] = useState<Record<string, boolean>>({});
   const [statusFilter, setStatusFilter] = useState<'all' | QuoteStatus>('all');
 
-  const fetchQuotes = async () => {
-    const { data } = await quotesService.getAllQuotes();
-    setQuotes(data ?? []);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    quotesService.getAllQuotes().then(({ data }) => { setQuotes(data ?? []); setLoading(false); });
-  }, []);
+  const quotesQuery = useSupabaseQuery<Quote[]>(() => quotesService.getAllQuotes(), []);
+  const quotes = quotesQuery.data ?? [];
 
   const handleRespond = async (quoteId: string, values: { quoted_price: number; admin_notes: string; status: string }) => {
     setSaving(s => ({ ...s, [quoteId]: true }));
     try {
       await quotesService.updateQuote(quoteId, values);
       message.success('Quote updated');
-      fetchQuotes();
+      quotesQuery.retry();
     } catch {
       message.error('Failed to update quote');
     } finally {
@@ -201,7 +195,9 @@ export const AdminQuotesPage = () => {
         }))}
       />
 
-      {loading ? <Text>Loading...</Text> : filteredQuotes.length === 0 ? (
+      {quotesQuery.error ? (
+        <LoadError compact what="quote requests" error={quotesQuery.error} onRetry={quotesQuery.retry} />
+      ) : quotesQuery.loading && !quotesQuery.data ? <Text>Loading...</Text> : filteredQuotes.length === 0 ? (
         <Text type="secondary">No quotes in this filter.</Text>
       ) : (
         <Space direction="vertical" style={{ width: '100%' }} size={spacing[3]}>

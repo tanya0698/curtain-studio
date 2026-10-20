@@ -1,26 +1,25 @@
 import { TeamOutlined } from '@ant-design/icons';
 import { Empty, Table, Tag, Typography } from 'antd';
-import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/api/supabaseClient';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 import { AdminLayout } from '../layout/AdminLayout';
 import type { Profile } from '../../../shared/types';
-import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing, iconSize } from '../../../lib/theme';
 
 const { Title } = Typography;
 
 export const AdminCustomersPage = () => {
-  const [customers, setCustomers] = useState<Profile[]>([]);
-  const [loading, setLoading] = useState(true);
   const colors = useColors();
 
-  useEffect(() => {
-    supabase
+  const customersQuery = useSupabaseQuery<Profile[]>(
+    () => supabase
       .from('profiles')
       .select('*')
       .eq('role', 'customer')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setCustomers(data ?? []); setLoading(false); });
-  }, []);
+      .order('created_at', { ascending: false }),
+    [],
+  );
 
   return (
     <AdminLayout>
@@ -33,13 +32,15 @@ export const AdminCustomersPage = () => {
         padding: spacing[4],
       }}>
         <Table
-          dataSource={customers}
+          dataSource={customersQuery.data ?? []}
           rowKey="id"
-          loading={loading}
+          loading={customersQuery.loading}
           locale={{
-            emptyText: (
+            emptyText: customersQuery.error ? (
+              <LoadError compact what="customers" error={customersQuery.error} onRetry={customersQuery.retry} />
+            ) : (
               <Empty
-                image={<TeamOutlined style={{ fontSize: 40, color: colors.brand.accent }} />}
+                image={<TeamOutlined style={{ fontSize: iconSize.hero, color: colors.brand.accent }} />}
                 description="No customers yet"
               />
             ),

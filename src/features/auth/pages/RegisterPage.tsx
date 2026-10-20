@@ -1,9 +1,9 @@
-import { LockOutlined, MailOutlined, PhoneOutlined, UserOutlined } from '@ant-design/icons';
+import { LockOutlined, MailOutlined, PhoneOutlined, UserAddOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Col, Form, Grid, Input, Row, Typography } from 'antd';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import { useColors, spacing } from '../../../lib/theme';
+import { useColors, spacing, iconSize } from '../../../lib/theme';
 import { AuthImagePanel } from '../components/AuthImagePanel';
 
 const { useBreakpoint } = Grid;
@@ -57,9 +57,9 @@ export const RegisterPage = () => {
               width: 44, height: 44, borderRadius: '50%',
               background: colors.background.muted,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 20, flexShrink: 0,
+              fontSize: iconSize.lg, color: colors.brand.primary, flexShrink: 0,
             }}>
-              ✂️
+              <UserAddOutlined />
             </div>
             <div>
               <Title level={4} style={{ color: colors.brand.primary, margin: 0, lineHeight: 1.2 }}>

@@ -1,10 +1,9 @@
-import { ConfigProvider } from 'antd';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './features/auth/contexts/AuthContext';
 import { CustomerRoute } from './features/auth/components/CustomerRoute';
 import { AdminRoute } from './features/auth/components/AdminRoute';
 import { CartProvider } from './features/cart/contexts/CartContext';
-import { ThemeProvider, useColors, useTheme, buildAntdTheme } from './lib/theme';
+import { ThemeProvider } from './lib/theme';
 
 // Pages
 import { HomePage } from './features/landing/pages/HomePage';
@@ -25,42 +24,37 @@ import { AdminCataloguePage } from './features/admin/catalogue/AdminCataloguePag
 import { AdminCustomersPage } from './features/admin/customers/AdminCustomersPage';
 
 function AppShell() {
-  const colors = useColors();
-  const { isDark } = useTheme();
-
   return (
-    <ConfigProvider theme={buildAntdTheme(colors, isDark)}>
-      <BrowserRouter>
-        <AuthProvider>
-          <CartProvider>
-            <Routes>
-              {/* Public routes */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/catalogue" element={<CataloguePage />} />
-              <Route path="/catalogue/:id" element={<ProductDetailPage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
-              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-              <Route path="/cart" element={<CartPage />} />
+    <BrowserRouter>
+      <AuthProvider>
+        <CartProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/catalogue" element={<CataloguePage />} />
+            <Route path="/catalogue/:id" element={<ProductDetailPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/cart" element={<CartPage />} />
 
-              {/* Customer-protected routes */}
-              <Route path="/checkout" element={<CustomerRoute><CheckoutPage /></CustomerRoute>} />
-              <Route path="/checkout/complete" element={<CustomerRoute><CheckoutCompletePage /></CustomerRoute>} />
-              <Route path="/quotes/new" element={<CustomerRoute><QuoteRequestPage /></CustomerRoute>} />
-              <Route path="/account" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
-              <Route path="/account/quotes" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
+            {/* Customer-protected routes */}
+            <Route path="/checkout" element={<CustomerRoute><CheckoutPage /></CustomerRoute>} />
+            <Route path="/checkout/complete" element={<CustomerRoute><CheckoutCompletePage /></CustomerRoute>} />
+            <Route path="/quotes/new" element={<CustomerRoute><QuoteRequestPage /></CustomerRoute>} />
+            <Route path="/account" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
+            <Route path="/account/quotes" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
 
-              {/* Admin-protected routes */}
-              <Route path="/admin" element={<AdminRoute><DashboardPage /></AdminRoute>} />
-              <Route path="/admin/orders" element={<AdminRoute><AdminOrdersPage /></AdminRoute>} />
-              <Route path="/admin/quotes" element={<AdminRoute><AdminQuotesPage /></AdminRoute>} />
-              <Route path="/admin/catalogue" element={<AdminRoute><AdminCataloguePage /></AdminRoute>} />
-              <Route path="/admin/customers" element={<AdminRoute><AdminCustomersPage /></AdminRoute>} />
-            </Routes>
-          </CartProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </ConfigProvider>
+            {/* Admin-protected routes */}
+            <Route path="/admin" element={<AdminRoute><DashboardPage /></AdminRoute>} />
+            <Route path="/admin/orders" element={<AdminRoute><AdminOrdersPage /></AdminRoute>} />
+            <Route path="/admin/quotes" element={<AdminRoute><AdminQuotesPage /></AdminRoute>} />
+            <Route path="/admin/catalogue" element={<AdminRoute><AdminCataloguePage /></AdminRoute>} />
+            <Route path="/admin/customers" element={<AdminRoute><AdminCustomersPage /></AdminRoute>} />
+          </Routes>
+        </CartProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 

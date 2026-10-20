@@ -7,6 +7,7 @@ import {
   WhatsAppOutlined,
 } from '@ant-design/icons';
 import {
+  App,
   Button,
   Col,
   Divider,
@@ -14,7 +15,6 @@ import {
   Form,
   Image,
   Input,
-  message,
   Popconfirm,
   Row,
   Space,
@@ -33,6 +33,8 @@ import type { Order, Quote } from '../../../shared/types';
 import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 import { CustomerLayout } from '../../../shared/components/layout/CustomerLayout';
 import { StatusChip } from '../../../shared/components/StatusChip';
+import { LoadError } from '../../../shared/components/LoadError';
+import { useSupabaseQuery } from '../../../shared/hooks/useSupabaseQuery';
 import { buildWhatsAppLink, BUSINESS_WHATSAPP_NUMBER } from '../../../shared/config/whatsapp';
 import { ORDER_STATUS_STEPS, orderStatusStepIndex, orderWhatsAppMessage } from '../../../shared/config/orderStatus';
 
@@ -240,12 +242,9 @@ const CustomerOrderCard = ({ order }: { order: Order }) => {
 };
 
 export const AccountPage = () => {
+  const { message } = App.useApp();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [quotes, setQuotes] = useState<Quote[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
-  const [quotesLoading, setQuotesLoading] = useState(true);
   const [profileLoading, setProfileLoading] = useState(false);
   const [form] = Form.useForm();
   const colors = useColors();
@@ -256,23 +255,17 @@ export const AccountPage = () => {
     }
   }, [profile, form]);
 
-  const fetchQuotes = async () => {
-    setQuotesLoading(true);
-    const { data } = await quotesService.getMyQuotes();
-    setQuotes(data ?? []);
-    setQuotesLoading(false);
-  };
-
-  useEffect(() => {
-    supabase
+  const ordersQuery = useSupabaseQuery<Order[]>(
+    () => supabase
       .from('orders')
       .select('*, items:order_items(*, product:products(*))')
       .eq('customer_id', user?.id ?? '')
-      .order('created_at', { ascending: false })
-      .then(({ data }) => { setOrders(data ?? []); setOrdersLoading(false); });
-
-    quotesService.getMyQuotes().then(({ data }) => { setQuotes(data ?? []); setQuotesLoading(false); });
-  }, [user]);
+      .order('created_at', { ascending: false }),
+    [user?.id],
+  );
+  const quotesQuery = useSupabaseQuery<Quote[]>(() => quotesService.getMyQuotes(), [user?.id]);
+  const orders = ordersQuery.data ?? [];
+  const quotes = quotesQuery.data ?? [];
 
   const handleProfileSave = async (values: { full_name: string; phone?: string; address?: string }) => {
     setProfileLoading(true);
@@ -290,7 +283,7 @@ export const AccountPage = () => {
   const handleDeclineQuote = async (quoteId: string) => {
     await quotesService.updateQuote(quoteId, { status: 'rejected' });
     message.success('Quote declined');
-    fetchQuotes();
+    quotesQuery.retry();
   };
 
   return (
@@ -307,7 +300,9 @@ export const AccountPage = () => {
             {
               key: 'orders',
               label: <span><ShoppingOutlined /> Orders</span>,
-              children: ordersLoading ? <Spin /> : orders.length === 0 ? (
+              children: ordersQuery.loading ? <Spin /> : ordersQuery.error ? (
+                <LoadError compact what="your orders" error={ordersQuery.error} onRetry={ordersQuery.retry} />
+              ) : orders.length === 0 ? (
                 <Empty description="No orders yet">
                   <Button onClick={() => navigate('/catalogue')} type="primary"
                     style={{ backgroundColor: colors.brand.primary, borderColor: colors.brand.primary }}>
@@ -325,7 +320,9 @@ export const AccountPage = () => {
             {
               key: 'quotes',
               label: <span><FileTextOutlined /> My Quotes</span>,
-              children: quotesLoading ? <Spin /> : quotes.length === 0 ? (
+              children: quotesQuery.loading ? <Spin /> : quotesQuery.error ? (
+                <LoadError compact what="your quotes" error={quotesQuery.error} onRetry={quotesQuery.retry} />
+              ) : quotes.length === 0 ? (
                 <Empty description="No quote requests yet">
                   <Button onClick={() => navigate('/quotes/new')} type="primary"
                     style={{ backgroundColor: colors.brand.primary, borderColor: colors.brand.primary }}>
