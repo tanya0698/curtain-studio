@@ -1,0 +1,44 @@
+# Render Blueprint — J&M Curtain Studio (Vite + React SPA, static site).
+# Render dashboard → New → Blueprint → pick this repo. Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    runtime: static
+    name: curtain-studio
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      # Vite >= 8 needs Node 20.19+ / 22.12+
+      - key: NODE_VERSION
+        value: "22"
+      # Baked into the bundle at build time. Both are browser-safe (RLS-gated);
+      # sync: false = Render asks for the values when the Blueprint is created.
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        sync: false
+    routes:
+      # Client-side routing: every path that isn't a real file serves the app
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      # Hashed build assets never change — cache hard
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # The service worker and app shell must always revalidate, or PWA
+      # users get stuck on an old version after a deploy
+      - path: /sw.js
+        name: Cache-Control
+        value: no-cache
+      - path: /index.html
+        name: Cache-Control
+        value: no-cache
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
