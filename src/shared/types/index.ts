@@ -51,6 +51,7 @@ export interface Quote {
   notes: string | null;
   admin_notes: string | null;
   quoted_price: number | null;
+  images: string[];
   created_at: string;
   updated_at: string;
   items?: QuoteItem[];
@@ -75,7 +76,7 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
-export type PaymentMethod = 'stripe' | 'paypal';
+export type PaymentMethod = 'paynow_ecocash' | 'paynow_onemoney' | 'paynow_card';
 
 export interface Order {
   id: string;
@@ -84,7 +85,7 @@ export interface Order {
   total_amount: number;
   deposit_amount: number | null;
   payment_method: PaymentMethod | null;
-  payment_intent_id: string | null;
+  paynow_reference: string | null;
   created_at: string;
   items?: OrderItem[];
   customer?: Profile;

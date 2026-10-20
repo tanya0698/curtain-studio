@@ -7,7 +7,7 @@ import {
   TeamOutlined,
 } from '@ant-design/icons';
 import { Layout, Menu, Typography } from 'antd';
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/hooks/useAuth';
 import { useColors, spacing } from '../../../lib/theme';
@@ -28,12 +28,20 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const { logout } = useAuth();
   const colors = useColors();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {/* breakpoint/collapsedWidth give this a working mobile nav for free —
+          antd auto-renders a floating trigger button once collapsed to 0,
+          same idea as Navbar's mobile Drawer but using Sider's own equivalent. */}
       <Sider
         width={220}
-        style={{ background: colors.brand.dark, position: 'fixed', height: '100vh', zIndex: 100 }}
+        breakpoint="lg"
+        collapsedWidth={0}
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        style={{ background: colors.brand.dark, position: 'relative', height: '100vh' }}
       >
         <div style={{ padding: `${spacing[6]}px ${spacing[4]}px`, borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
           <Text strong style={{ color: '#fff', fontSize: 16 }}>✂️ Admin Panel</Text>
@@ -67,7 +75,7 @@ export const AdminLayout = ({ children }: { children: ReactNode }) => {
         </div>
       </Sider>
 
-      <Layout style={{ marginLeft: 220 }}>
+      <Layout>
         <Content style={{ padding: spacing[8], background: colors.background.page, minHeight: '100vh' }}>
           {children}
         </Content>

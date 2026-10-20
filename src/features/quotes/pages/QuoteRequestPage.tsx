@@ -14,6 +14,7 @@ import {
   Typography,
   Upload,
 } from 'antd';
+import type { UploadFile } from 'antd';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { catalogueService } from '../../catalogue/services/catalogueService';
@@ -36,6 +37,7 @@ export const QuoteRequestPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [step, setStep] = useState(0);
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
   const colors = useColors();
 
   const preselectedProductId = (location.state as { productId?: string } | null)?.productId;
@@ -60,7 +62,7 @@ export const QuoteRequestPage = () => {
     setError('');
     setLoading(true);
     try {
-      await quotesService.createQuote({
+      const quote = await quotesService.createQuote({
         notes: values.notes,
         items: [{
           product_id: values.product_id,
@@ -69,6 +71,24 @@ export const QuoteRequestPage = () => {
           fabric_choice: values.fabric_choice,
         }],
       });
+
+      // Upload any attached photos now that we have a quote id to file them
+      // under. A photo failing to upload shouldn't lose the quote request
+      // itself — the customer's notes/measurements already made it through.
+      const filesToUpload = fileList
+        .map(f => f.originFileObj)
+        .filter((f): f is NonNullable<typeof f> => !!f);
+      if (filesToUpload.length > 0) {
+        try {
+          const paths = await Promise.all(
+            filesToUpload.map(file => quotesService.uploadAttachment(quote.id, file)),
+          );
+          await quotesService.attachImages(quote.id, paths);
+        } catch {
+          message.warning('Quote submitted, but your photos failed to upload. You can share them via WhatsApp instead.');
+        }
+      }
+
       message.success('Quote request submitted! We\'ll get back to you soon.');
       navigate('/account/quotes');
     } catch (err: unknown) {
@@ -142,7 +162,13 @@ export const QuoteRequestPage = () => {
               </Form.Item>
 
               <Form.Item label="Photos (optional)">
-                <Dragger multiple beforeUpload={() => false} accept="image/*">
+                <Dragger
+                  multiple
+                  beforeUpload={() => false}
+                  accept="image/*"
+                  fileList={fileList}
+                  onChange={({ fileList: newList }) => setFileList(newList)}
+                >
                   <p className="ant-upload-drag-icon"><InboxOutlined /></p>
                   <p>Click or drag photos of your window/curtains here</p>
                 </Dragger>
@@ -181,6 +207,9 @@ export const QuoteRequestPage = () => {
                 )}
                 {form.getFieldValue('notes') && (
                   <><br /><Text strong>Notes: </Text><Text>{form.getFieldValue('notes')}</Text></>
+                )}
+                {fileList.length > 0 && (
+                  <><br /><Text strong>Photos: </Text><Text>{fileList.length} attached</Text></>
                 )}
               </div>
               <Button type="primary" htmlType="submit" block loading={loading}

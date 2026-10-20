@@ -1,4 +1,5 @@
 import {
+  AppstoreOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
@@ -8,6 +9,7 @@ import {
   Button,
   Col,
   Drawer,
+  Empty,
   Form,
   Input,
   InputNumber,
@@ -26,7 +28,7 @@ import { useEffect, useState } from 'react';
 import { catalogueService } from '../../catalogue/services/catalogueService';
 import { AdminLayout } from '../layout/AdminLayout';
 import type { Product, ProductCategory } from '../../../shared/types';
-import { useColors, spacing } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing } from '../../../lib/theme';
 
 const { Title } = Typography;
 const { TextArea } = Input;
@@ -48,7 +50,7 @@ export const AdminCataloguePage = () => {
   };
 
   useEffect(() => {
-    fetchProducts();
+    catalogueService.getProducts().then(({ data }) => { setProducts(data ?? []); setLoading(false); });
     catalogueService.getCategories().then(({ data }) => setCategories(data ?? []));
   }, []);
 
@@ -112,11 +114,25 @@ export const AdminCataloguePage = () => {
         </Button>
       </Row>
 
+      <div style={{
+        background: colors.background.surface,
+        borderRadius: radius.lg,
+        boxShadow: shadows.sm,
+        padding: spacing[4],
+      }}>
       <Table
         dataSource={products}
         rowKey="id"
         loading={loading}
         scroll={{ x: 800 }}
+        locale={{
+          emptyText: (
+            <Empty
+              image={<AppstoreOutlined style={{ fontSize: 40, color: colors.brand.accent }} />}
+              description="No products yet"
+            />
+          ),
+        }}
         columns={[
           {
             title: 'Image',
@@ -173,6 +189,7 @@ export const AdminCataloguePage = () => {
           },
         ]}
       />
+      </div>
 
       <Drawer
         title={editingProduct ? 'Edit Product' : 'Add Product'}

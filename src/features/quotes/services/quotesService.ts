@@ -57,4 +57,31 @@ export const quotesService = {
 
   acceptQuote: (id: string) =>
     supabase.from('quotes').update({ status: 'accepted', updated_at: new Date().toISOString() }).eq('id', id),
+
+  // Photos attached to a quote request. Stored in a private bucket under the
+  // uploading customer's own id, per the storage RLS policies in
+  // 003_quote_flow_polish.sql — so uploads only ever succeed for the
+  // customer's own quotes, regardless of what quoteId is passed in.
+  uploadAttachment: async (quoteId: string, file: File) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const path = `${user.id}/${quoteId}-${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage.from('quote-attachments').upload(path, file);
+    if (error) throw error;
+    return path;
+  },
+
+  // The bucket is private, so callers need a signed URL rather than a public
+  // one — this only succeeds for the photo's owner or an admin (same RLS).
+  getAttachmentUrl: async (path: string) => {
+    const { data, error } = await supabase.storage
+      .from('quote-attachments')
+      .createSignedUrl(path, 60 * 10); // 10 minutes — just long enough to view
+    if (error) throw error;
+    return data.signedUrl;
+  },
+
+  attachImages: (quoteId: string, imagePaths: string[]) =>
+    supabase.from('quotes').update({ images: imagePaths }).eq('id', quoteId),
 };

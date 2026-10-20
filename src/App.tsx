@@ -15,6 +15,7 @@ import { RegisterPage } from './features/auth/pages/RegisterPage';
 import { ForgotPasswordPage } from './features/auth/pages/ForgotPasswordPage';
 import { CartPage } from './features/cart/components/CartPage';
 import { CheckoutPage } from './features/checkout/pages/CheckoutPage';
+import { CheckoutCompletePage } from './features/checkout/pages/CheckoutCompletePage';
 import { QuoteRequestPage } from './features/quotes/pages/QuoteRequestPage';
 import { AccountPage } from './features/account/pages/AccountPage';
 import { DashboardPage } from './features/admin/dashboard/DashboardPage';
@@ -44,6 +45,7 @@ function AppShell() {
 
               {/* Customer-protected routes */}
               <Route path="/checkout" element={<CustomerRoute><CheckoutPage /></CustomerRoute>} />
+              <Route path="/checkout/complete" element={<CustomerRoute><CheckoutCompletePage /></CustomerRoute>} />
               <Route path="/quotes/new" element={<CustomerRoute><QuoteRequestPage /></CustomerRoute>} />
               <Route path="/account" element={<CustomerRoute><AccountPage /></CustomerRoute>} />
               <Route path="/account/quotes" element={<CustomerRoute><AccountPage /></CustomerRoute>} />

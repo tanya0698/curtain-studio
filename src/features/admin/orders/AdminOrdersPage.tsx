@@ -1,9 +1,12 @@
-import { Select, Space, Table, Tag, Typography } from 'antd';
+import { ShoppingOutlined, WhatsAppOutlined } from '@ant-design/icons';
+import { Button, Empty, Select, Space, Table, Tag, Typography } from 'antd';
 import { useEffect, useState } from 'react';
 import { supabase } from '../../../lib/api/supabaseClient';
 import { AdminLayout } from '../layout/AdminLayout';
 import type { Order } from '../../../shared/types';
-import { useColors } from '../../../lib/theme';
+import { useColors, radius, shadows, spacing } from '../../../lib/theme';
+import { buildWhatsAppLink } from '../../../shared/config/whatsapp';
+import { orderWhatsAppMessage } from '../../../shared/config/orderStatus';
 
 const { Title } = Typography;
 
@@ -18,7 +21,7 @@ const STATUS_OPTIONS = [
 
 
 export const AdminOrdersPage = () => {
-  const [orders, setOrders] = useState<(Order & { customer?: { full_name: string | null; email?: string } })[]>([]);
+  const [orders, setOrders] = useState<(Order & { customer?: { full_name: string | null; phone: string | null } })[]>([]);
   const [loading, setLoading] = useState(true);
   const colors = useColors();
 
@@ -31,7 +34,13 @@ export const AdminOrdersPage = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchOrders(); }, []);
+  useEffect(() => {
+    supabase
+      .from('orders')
+      .select('*, customer:profiles(full_name, phone), items:order_items(*, product:products(name))')
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setOrders(data ?? []); setLoading(false); });
+  }, []);
 
   const updateStatus = async (orderId: string, status: string) => {
     await supabase.from('orders').update({ status }).eq('id', orderId);
@@ -42,11 +51,25 @@ export const AdminOrdersPage = () => {
     <AdminLayout>
       <Title level={2} style={{ marginBottom: 24 }}>Orders</Title>
 
+      <div style={{
+        background: colors.background.surface,
+        borderRadius: radius.lg,
+        boxShadow: shadows.sm,
+        padding: spacing[4],
+      }}>
       <Table
         dataSource={orders}
         rowKey="id"
         loading={loading}
         scroll={{ x: 900 }}
+        locale={{
+          emptyText: (
+            <Empty
+              image={<ShoppingOutlined style={{ fontSize: 40, color: colors.brand.accent }} />}
+              description="No orders yet"
+            />
+          ),
+        }}
         columns={[
           {
             title: 'Order ID',
@@ -87,6 +110,21 @@ export const AdminOrdersPage = () => {
             ),
           },
           {
+            title: 'Contact',
+            render: (_: unknown, record: Order & { customer?: { phone: string | null } }) =>
+              record.customer?.phone ? (
+                <Button
+                  size="small"
+                  icon={<WhatsAppOutlined />}
+                  href={buildWhatsAppLink(record.customer.phone, orderWhatsAppMessage(record.id, record.status))}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  WhatsApp
+                </Button>
+              ) : null,
+          },
+          {
             title: 'Date',
             dataIndex: 'created_at',
             render: (v: string) => new Date(v).toLocaleDateString(),
@@ -104,6 +142,7 @@ export const AdminOrdersPage = () => {
           },
         ]}
       />
+      </div>
     </AdminLayout>
   );
 };

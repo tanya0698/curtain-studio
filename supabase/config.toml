@@ -1,0 +1,9 @@
+project_id = "curtain-studio"
+
+# Paynow's resulturl webhook hits this function anonymously (server-to-server),
+# and the browser also calls it directly to poll payment status — neither has a
+# Supabase user JWT, so it can't require one.
+[functions.paynow-status]
+verify_jwt = false
+
+# paynow-initiate requires a logged-in customer (default verify_jwt = true).
